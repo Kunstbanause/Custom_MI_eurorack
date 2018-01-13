@@ -162,6 +162,7 @@ void Init() {
   
   envelope.Init();
   ws.Init(GetUniqueId(1));
+  tinyBuffer = (char *) &ws.transfer_[0];
   jitter_source.Init();
   sys.StartTimers();
 }

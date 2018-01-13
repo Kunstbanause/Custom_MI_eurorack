@@ -96,7 +96,7 @@ class MacroOscillator {
   void RenderSawComb(const uint8_t*, int16_t*, size_t);
   void RenderTriple(const uint8_t*, int16_t*, size_t);
   void RenderVocalist(const uint8_t*, int16_t*, size_t);
-  
+
   void ConfigureTriple(AnalogOscillatorShape shape);
 
   int16_t parameter_[2];
@@ -108,7 +108,6 @@ class MacroOscillator {
   
   AnalogOscillator analog_oscillator_[3];
   DigitalOscillator digital_oscillator_;
-  Vocalist vocalist_;
   
   MacroOscillatorShape shape_;
   static RenderFn fn_table_[];

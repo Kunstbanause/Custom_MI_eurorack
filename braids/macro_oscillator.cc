@@ -39,6 +39,8 @@ namespace braids {
   
 using namespace stmlib;
 
+Vocalist vocalist_;
+
 void MacroOscillator::Render(
     const uint8_t* sync,
     int16_t* buffer,

@@ -5,7 +5,7 @@ typedef short int16_t;
 typedef unsigned char uint8_t;
 
 #define MAX_TINY_BUFFER 500
-extern char tinyBuffer[MAX_TINY_BUFFER];
+extern char *tinyBuffer;
 extern unsigned short tinyBufferSize; // this is in a weird "actual size * 50" unit because that's what the generated code uses elsewhere for some calculations
 extern unsigned short tinyBufferStart; // this is a direct index into tinyBuffer where the ring buffer begins.
 

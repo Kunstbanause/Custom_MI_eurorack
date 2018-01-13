@@ -1,7 +1,7 @@
 #include "sam.h"
 #include "RenderTabs.h"
 
-char tinyBuffer[MAX_TINY_BUFFER];
+char *tinyBuffer;
 unsigned short tinyBufferSize; // this is in a weird "actual size * 50" unit because that's what the generated code uses elsewhere for some calculations
 unsigned short tinyBufferStart; // this is a direct index into tinyBuffer where the ring buffer begins.
 
