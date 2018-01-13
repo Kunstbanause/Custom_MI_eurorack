@@ -37,6 +37,7 @@
 #include "braids/digital_oscillator.h"
 #include "braids/resources.h"
 #include "braids/settings.h"
+#include "braids/vocalist/vocalist.h"
 
 namespace braids {
   
@@ -105,6 +106,7 @@ class MacroOscillator {
   
   AnalogOscillator analog_oscillator_[3];
   DigitalOscillator digital_oscillator_;
+  Vocalist vocalist_;
   
   MacroOscillatorShape shape_;
   static RenderFn fn_table_[];
