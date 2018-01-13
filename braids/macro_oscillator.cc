@@ -377,6 +377,18 @@ void MacroOscillator::RenderSawComb(
   digital_oscillator_.Render(sync, buffer, size);
 }
 
+void MacroOscillator::RenderVocalist(
+  const uint8_t* sync,
+  int16_t* buffer,
+  size_t size) {
+
+  vocalist_.set_parameters(parameter_[0], parameter_[1]);
+  vocalist_.set_pitch(pitch_);
+  vocalist_.set_shape(static_cast<DigitalOscillatorShape>(
+      shape_ - MACRO_OSC_SHAPE_SAM1));
+  vocalist_.Render(sync, buffer, size);
+}
+
 /* static */
 MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderCSaw,
@@ -427,6 +439,7 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
+  &MacroOscillator::RenderVocalist,
   // &MacroOscillator::RenderDigital
 };
 

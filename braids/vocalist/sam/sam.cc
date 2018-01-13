@@ -14,18 +14,7 @@ enum {
 
 extern int debug;
 
-void SAM::SetSpeed(unsigned char _speed) {speed = _speed;};
-void SAM::SetPitch(unsigned char _pitch) {pitch = _pitch;};
-void SAM::SetMouth(unsigned char _mouth) {mouth = _mouth;};
-void SAM::SetThroat(unsigned char _throat) {throat = _throat;};
-void SAM::EnableSingmode() {singmode = 1;};
-
 void SAM::Init() {
-  SetMouthThroat( mouth, throat);
-
-  // bufferpos = 0;
-  // // TODO, check for free the memory, 10 seconds of output should be more than enough
-  // buffer = (char *) malloc(22050*10);
 }
 
 void SAM::LoadTables(const unsigned char *data, const unsigned char entryLen) {
