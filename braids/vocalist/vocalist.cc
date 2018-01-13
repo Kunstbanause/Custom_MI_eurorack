@@ -55,18 +55,7 @@ void Vocalist::Load() {
         i += 1;
       }
     }
-  } else {
-    LoadRando();
   }
-}
-
-void Vocalist::LoadRando() {
-  for (int i = 0; i < 24; i++) {
-    rando[i] = rand() % 256;
-  }
-  sam.LoadNextWord(&rando[0], &rando[8], &rando[16], 8);
-  sam.InitFrameProcessor();
-  sam.PrepareFrames();
 }
 
 void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int bufferLen) {

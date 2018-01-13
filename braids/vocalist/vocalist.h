@@ -41,17 +41,15 @@ public:
 
 private:
   void Load();
-  void LoadRando();
 
   SAM sam;
-  int mode;
+  unsigned char mode;
   uint16_t offset;
   unsigned char bank;
   unsigned char word;
   bool gatestate;
   bool risingEdge;
   bool playing;
-  unsigned char rando[24];
   unsigned char validOffset[255];
   unsigned char validOffsetLen;
 };
