@@ -1,4 +1,4 @@
-PACKAGES       = braids/test stmlib/utils braids
+PACKAGES       = braids/test stmlib/utils braids braids/vocalist
 
 VPATH          = $(PACKAGES)
 
@@ -11,7 +11,12 @@ CC_FILES       = analog_oscillator.cc \
 		braids_test.cc \
 		quantizer.cc \
 		resources.cc \
-		random.cc
+		random.cc \
+		vocalist.cc \
+		sam.cc \
+		rendertabs.cc \
+		wordlist.cc
+
 OBJ_FILES      = $(CC_FILES:.cc=.o)
 OBJS           = $(patsubst %,$(BUILD_DIR)%,$(OBJ_FILES)) $(STARTUP_OBJ)
 DEPS           = $(OBJS:.o=.d)

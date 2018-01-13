@@ -39,7 +39,7 @@ UPLOAD_COMMAND  = upload_combo_jtag
 
 # Packages to build
 TARGET         = braids
-PACKAGES       = braids braids/drivers stmlib/utils stmlib/system braids/vocalist braids/vocalist/sam
+PACKAGES       = braids braids/drivers stmlib/utils stmlib/system braids/vocalist
 RESOURCES      = braids/resources
 
 TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/

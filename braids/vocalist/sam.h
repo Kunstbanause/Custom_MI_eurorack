@@ -9,6 +9,12 @@ extern char *tinyBuffer;
 extern unsigned short tinyBufferSize; // this is in a weird "actual size * 50" unit because that's what the generated code uses elsewhere for some calculations
 extern unsigned short tinyBufferStart; // this is a direct index into tinyBuffer where the ring buffer begins.
 
+#define PHONEME_PERIOD (1)
+#define PHONEME_QUESTION (2)
+
+#define RISING_INFLECTION (1)
+#define FALLING_INFLECTION (255)
+
 class SAM {
 
 public:

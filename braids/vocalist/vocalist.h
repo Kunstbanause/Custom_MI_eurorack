@@ -5,7 +5,7 @@
 
 #define NUM_VOCALIST_PATCHES NUM_BANKS
 
-#include "sam/sam.h"
+#include "sam.h"
 
 #define MODE_NORMAL 0
 #define MODE_CRAZY 1

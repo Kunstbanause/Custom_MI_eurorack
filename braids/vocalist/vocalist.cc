@@ -41,7 +41,7 @@ void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int bufferLen
   int len = bufferLen >> 2;
 
   int written = 0;
-  //printf("entering thunderdome\n");
+
   while (written < len) {
     int wrote = sam.Drain(0, len - written, &buffer[written]);
     written += wrote;
@@ -51,12 +51,6 @@ void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int bufferLen
         sam.SetFramePosition(validOffset_[offset]);
       }
       sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
-    }
-    
-    if (written == 0) {
-      //printf("written 0, we never leaving\n");
-    } else {
-      //printf("got data\n");
     }
   }
 
