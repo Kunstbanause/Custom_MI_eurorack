@@ -37,6 +37,7 @@ void SAM::LoadTables(const unsigned char *data, const unsigned char entryLen) {
   sampledConsonantFlag = &data[offset];
   offset += entryLen;
   framesRemaining = entryLen;
+  frameProcessorPosition = 0;
   totalFrames = entryLen;
 }
 

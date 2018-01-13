@@ -21,7 +21,7 @@ public:
 
   ~Vocalist() { }
 
-  void init(int sampleRate, int samplesPerBlock);
+  void Init();
   void set_shape(int shape);
 
   void Render(const uint8_t* sync_buffer, int16_t *output, int len);

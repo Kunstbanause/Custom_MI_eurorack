@@ -31,6 +31,8 @@ const uint16_t kAudioBlockSize = 24;
 
 void TestAudioRendering() {
   MacroOscillator osc;
+  tinyBuffer = (char *) malloc(500);
+  
   WavWriter wav_writer(1, kSampleRate, 5);
   wav_writer.Open("oscillator.wav");
 

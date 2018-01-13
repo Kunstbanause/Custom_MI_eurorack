@@ -53,6 +53,8 @@ class MacroOscillator {
     analog_oscillator_[1].Init();
     analog_oscillator_[2].Init();
     digital_oscillator_.Init();
+    vocalist_.Init();
+
     lp_state_ = 0;
     previous_parameter_[0] = 0;
     previous_parameter_[1] = 0;
@@ -108,6 +110,7 @@ class MacroOscillator {
   
   AnalogOscillator analog_oscillator_[3];
   DigitalOscillator digital_oscillator_;
+  Vocalist vocalist_;
   
   MacroOscillatorShape shape_;
   static RenderFn fn_table_[];

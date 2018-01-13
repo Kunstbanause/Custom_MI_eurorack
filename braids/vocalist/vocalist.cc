@@ -4,7 +4,7 @@
 #include "vocalist.h"
 #include "wordlist.h"
 
-void Vocalist::init(int sampleRate, int samplesPerBlock) {
+void Vocalist::Init() {
     playing = false;
     bank = 0;
     offset = 0;
@@ -12,7 +12,6 @@ void Vocalist::init(int sampleRate, int samplesPerBlock) {
     risingEdge = 0;
     mode = MODE_NORMAL;
     
-    sam.InitFrameProcessor();
     SetWord(0);
 }
 
@@ -31,6 +30,8 @@ void Vocalist::Load() {
   playing = false;
   if (mode == MODE_NORMAL) {
     sam.LoadTables(&data[wordpos[bank][word]], wordlen[bank][word]);
+    sam.InitFrameProcessor();
+
     validOffset_ = &validOffset[validOffsetPos[bank][word]];
     validOffsetLen_ = validOffsetLen[bank][word];
   }

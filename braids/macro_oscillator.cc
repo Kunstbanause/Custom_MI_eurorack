@@ -39,8 +39,6 @@ namespace braids {
   
 using namespace stmlib;
 
-Vocalist vocalist_;
-
 void MacroOscillator::Render(
     const uint8_t* sync,
     int16_t* buffer,
@@ -440,8 +438,8 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderVocalist,
+  &MacroOscillator::RenderDigital,
   // &MacroOscillator::RenderDigital
 };
 
