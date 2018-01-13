@@ -50,8 +50,8 @@ private:
   bool gatestate;
   bool risingEdge;
   bool playing;
-  unsigned char validOffset[255];
-  unsigned char validOffsetLen;
+  const unsigned char *validOffset_;
+  unsigned char validOffsetLen_;
 };
 
 #endif

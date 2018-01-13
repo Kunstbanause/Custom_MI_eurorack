@@ -35,7 +35,7 @@ public:
   ~SAM() { }
 
   void Init();
-  bool LoadNextWord(const unsigned char *phonemeindex, const unsigned char *phonemeLength, const unsigned char *stress, int len);
+  void LoadTables(const unsigned char *data, const unsigned char entryLen);
 
   void SetSpeed(unsigned char _speed);
   void SetPitch(unsigned char _pitch);
@@ -69,17 +69,6 @@ public:
   unsigned char ProcessFrame(unsigned char Y, unsigned char mem48);
   void CombineGlottalAndFormants(unsigned char phase1, unsigned char phase2, unsigned char phase3, unsigned char Y);
 
-  // createtransitions.cc
-  unsigned char CreateTransitions();
-  unsigned char Read(unsigned char p, unsigned char Y);
-  void Write(unsigned char p, unsigned char Y, unsigned char value);
-  void interpolate(unsigned char width, unsigned char table, unsigned char frame, unsigned char mem53);
-  void interpolate_pitch(unsigned char width, unsigned char pos, unsigned char mem49, unsigned char phase3);
-
-  unsigned char phonemeIndexOutput[60]; //tab47296
-  unsigned char stressOutput[60]; //tab47365
-  unsigned char phonemeLengthOutput[60]; //tab47416
-
   // ---- sam.cc
   unsigned char speed;
   unsigned char pitch;
@@ -102,17 +91,17 @@ public:
   unsigned char srcpos;
 
   // ---- render.cc
-  unsigned char pitches[256]; // tab43008
+  const unsigned char *pitches; // tab43008
 
-  unsigned char frequency1[256];
-  unsigned char frequency2[256];
-  unsigned char frequency3[256];
+  const unsigned char *frequency1;
+  const unsigned char *frequency2;
+  const unsigned char *frequency3;
 
-  unsigned char amplitude1[256];
-  unsigned char amplitude2[256];
-  unsigned char amplitude3[256];
+  const unsigned char *amplitude1;
+  const unsigned char *amplitude2;
+  const unsigned char *amplitude3;
 
-  unsigned char sampledConsonantFlag[256]; // tab44800
+  const unsigned char *sampledConsonantFlag; // tab44800
 
   //processframes.cc
   unsigned char framesRemaining;

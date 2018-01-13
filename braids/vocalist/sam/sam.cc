@@ -21,47 +21,31 @@ void SAM::SetThroat(unsigned char _throat) {throat = _throat;};
 void SAM::EnableSingmode() {singmode = 1;};
 
 void SAM::Init() {
-  int i;
   SetMouthThroat( mouth, throat);
 
   // bufferpos = 0;
   // // TODO, check for free the memory, 10 seconds of output should be more than enough
   // buffer = (char *) malloc(22050*10);
-
-  for(i=0; i<60; i++) {
-    phonemeIndexOutput[i] = 0;
-    stressOutput[i] = 0;
-    phonemeLengthOutput[i] = 0;
-  }
 }
 
-bool SAM::LoadNextWord(const unsigned char *phonemeindex, const unsigned char *phonemeLength, const unsigned char *stress, int len) {
-  srcpos = 0; // Position in source
-  unsigned char destpos = 0; // Position in output
-
-  while(srcpos < len) {
-    unsigned char A = phonemeindex[srcpos];
-    phonemeIndexOutput[destpos] = A;
-    switch(A) {
-      case END:
-      //Render(&bufferpos, buffer);
-      return true;
-      case BREAK:
-      phonemeIndexOutput[destpos] = END;
-      //Render(&bufferpos, buffer);
-
-      return false;
-      case 0:
-      break;
-      default:
-      phonemeLengthOutput[destpos] = phonemeLength[srcpos];
-      stressOutput[destpos]        = stress[srcpos];
-      ++destpos;
-    }
-    ++srcpos;
-  }
-
-  phonemeIndexOutput[destpos] = END;
-
-  return true;
+void SAM::LoadTables(const unsigned char *data, const unsigned char entryLen) {
+  unsigned short offset = 0;
+  frequency1 = &data[0];
+  offset += entryLen;
+  frequency2 = &data[offset];
+  offset += entryLen;
+  frequency3 = &data[offset];
+  offset += entryLen;
+  pitches = &data[offset];
+  offset += entryLen;
+  amplitude1 = &data[offset];
+  offset += entryLen;
+  amplitude2 = &data[offset];
+  offset += entryLen;
+  amplitude3 = &data[offset];
+  offset += entryLen;
+  sampledConsonantFlag = &data[offset];
+  offset += entryLen;
+  framesRemaining = entryLen;
+  totalFrames = entryLen;
 }

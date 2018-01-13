@@ -42,24 +42,6 @@ extern const unsigned char inBlendLength[];
 // tab45936
 extern const unsigned char sampledConsonantFlags[];
 
-
-//tab45056
-extern unsigned char freq1data[];
-
-//tab451356
-extern unsigned char freq2data[];
-
-//tab45216
-extern unsigned char freq3data[];
-
-extern const unsigned char ampl1data[];
-
-extern const unsigned char ampl2data[];
-
-extern const unsigned char ampl3data[];
-
-
-
 //tab42240
 extern const unsigned char sinus[];
 

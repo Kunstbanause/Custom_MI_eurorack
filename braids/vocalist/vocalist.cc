@@ -34,27 +34,9 @@ void Vocalist::SetWord(unsigned char w) {
 void Vocalist::Load() {
   playing = false;
   if (mode == MODE_NORMAL) {
-    sam.LoadNextWord(
-      &data[wordpos[bank][word]],
-      &data[wordpos[bank][word] + wordlen[bank][word]],
-      &data[wordpos[bank][word] + (wordlen[bank][word] << 1)],
-      wordlen[bank][word]
-    );
-    sam.InitFrameProcessor();
-    sam.PrepareFrames();
-
-    // calculate valid offset positions
-    validOffsetLen = 0;
-    int i = 0;
-    while (i < sam.totalFrames) {
-      validOffset[validOffsetLen++] = i;
-
-      if (sam.sampledConsonantFlag[i] & 248) {
-        i += 2;
-      } else {
-        i += 1;
-      }
-    }
+    sam.LoadTables(&data[wordpos[bank][word]], wordlen[bank][word]);
+    validOffset_ = &validOffset[validOffsetPos[bank][word]];
+    validOffsetLen_ = validOffsetLen[bank][word];
   }
 }
 
@@ -69,8 +51,8 @@ void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int bufferLen
     written += wrote;
 
     if (wrote == 0) {
-      if (sam.frameProcessorPosition != validOffset[offset]) {
-        sam.SetFramePosition(validOffset[offset]);
+      if (sam.frameProcessorPosition != validOffset_[offset]) {
+        sam.SetFramePosition(validOffset_[offset]);
       }
       sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
     }
@@ -105,7 +87,7 @@ void Vocalist::set_parameters(uint16_t parameter1, uint16_t parameter2)
   if (parameter2 > 32767) {
     parameter2 = 32767;
   }
-  offset = validOffsetLen * parameter2 / 32768;
+  offset = validOffsetLen_ * parameter2 / 32768;
 }
 
 void Vocalist::set_pitch(uint16_t braids_pitch) {
