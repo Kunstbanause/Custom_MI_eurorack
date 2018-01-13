@@ -34,11 +34,7 @@ public:
   void set_pitch(uint16_t braids_pitch);
 
   void set_parameters(uint16_t parameter1, uint16_t parameter2);
-  void SetPitch(unsigned char pitch) { sam.SetPitch(pitch); }
-  void SetMouth(unsigned char mouth) { sam.SetMouth(mouth); }
-  void SetThroat(unsigned char throat) { sam.SetThroat(throat); }
-  void SetSpeed(unsigned char speed) { sam.SetSpeed(speed); }
-
+  
 private:
   void Load();
 

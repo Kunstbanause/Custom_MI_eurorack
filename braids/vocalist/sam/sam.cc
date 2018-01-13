@@ -1,5 +1,4 @@
 #include <string.h>
-#include "debug.h"
 #include "sam.h"
 #include "render.h"
 #include "SamTabs.h"
@@ -11,8 +10,6 @@ enum {
   BREAK = 254,
   END   = 255
 };
-
-extern int debug;
 
 void SAM::Init() {
 }

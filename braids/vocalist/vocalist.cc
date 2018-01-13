@@ -11,12 +11,8 @@ void Vocalist::init(int sampleRate, int samplesPerBlock) {
     word = -1;
     risingEdge = 0;
     mode = MODE_NORMAL;
-    SetPitch(82);
-    SetSpeed(72);
-    SetThroat(128);
-    SetMouth(128);
+    
     sam.InitFrameProcessor();
-    sam.EnableSingmode();
     SetWord(0);
 }
 
@@ -91,7 +87,7 @@ void Vocalist::set_parameters(uint16_t parameter1, uint16_t parameter2)
 }
 
 void Vocalist::set_pitch(uint16_t braids_pitch) {
-  sam.SetPitch(82 + (64 - (braids_pitch >> 5)));
+  // TODO sam.SetPitch(82 + (64 - (braids_pitch >> 5)));
 }
 
 void Vocalist::set_gatestate(bool gs) {

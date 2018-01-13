@@ -4,9 +4,6 @@
 #include "render.h"
 #include "RenderTabs.h"
 
-#include "debug.h"
-extern int debug;
-
 //return = hibyte(mem39212*mem39213) <<  1
 unsigned char trans(unsigned char a, unsigned char b)
 {

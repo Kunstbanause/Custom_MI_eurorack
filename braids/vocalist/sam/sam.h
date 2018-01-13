@@ -14,14 +14,9 @@ class SAM {
 public:
   SAM() {
     // sam.cc
-    mem59 = 0;
 
     //standard sam sound
     speed = 72;
-    pitch = 64;
-    mouth = 128;
-    throat = 128;
-    singmode = 0;
 
     speedcounter = 72;
     phase1 = 0;
@@ -37,14 +32,6 @@ public:
   void Init();
   void LoadTables(const unsigned char *data, const unsigned char entryLen);
 
-  void SetSpeed(unsigned char _speed);
-  void SetPitch(unsigned char _pitch);
-  void SetMouth(unsigned char _mouth);
-  void SetThroat(unsigned char _throat);
-  void EnableSingmode();
-  void EnableDebug();
-
-  int PreparePhonemes();
   // ---- render.cc
 
   void Output(int index, unsigned char A);
@@ -71,24 +58,6 @@ public:
 
   // ---- sam.cc
   unsigned char speed;
-  unsigned char pitch;
-  unsigned char mouth;
-  unsigned char throat;
-  unsigned char singmode;
-
-  unsigned char mem39;
-  unsigned char mem44;
-  unsigned char mem47;
-  unsigned char mem49;
-  unsigned char mem50;
-  unsigned char mem51;
-  unsigned char mem53;
-  unsigned char mem59;
-
-  unsigned char X;
-
-  // this is the cursor into the input phoneme list between word renders
-  unsigned char srcpos;
 
   // ---- render.cc
   const unsigned char *pitches; // tab43008
