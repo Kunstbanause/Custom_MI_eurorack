@@ -1,6 +1,7 @@
 #ifndef __VOCALIST_H__
 #define __VOCALIST_H__
 
+#include <stdint.h>
 #include "wordlist.h"
 
 #define NUM_VOCALIST_PATCHES NUM_BANKS
@@ -10,8 +11,6 @@
 #define MODE_NORMAL 0
 #define MODE_CRAZY 1
 #define MODE_REALLY_CRAZY 2
-
-typedef unsigned short uint16_t;
 
 class Vocalist {
 public:
@@ -31,7 +30,7 @@ public:
   void SetWord(unsigned char b);
 
   void SetMode(int m) { mode = m; }
-  void set_pitch(uint16_t braids_pitch);
+  void set_pitch(uint16_t pitch);
 
   void set_parameters(uint16_t parameter1, uint16_t parameter2);
   
@@ -39,6 +38,10 @@ private:
   void Load();
 
   SAM sam;
+  int16_t samples[2];
+  uint32_t phase;
+
+  uint16_t braids_pitch;
   unsigned char mode;
   uint16_t offset;
   unsigned char bank;

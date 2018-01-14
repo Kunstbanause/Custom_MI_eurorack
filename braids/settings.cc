@@ -191,7 +191,8 @@ const char* const algo_values[] = {
     "CLOU",
     "PRTC",
     "QPSK",
-    "SAM1"
+    "SAM1",
+    "SAM2"
     // "NAME" // For your algorithm
 };
 
@@ -309,7 +310,7 @@ const char* const note_values[] = {
 
 /* static */
 const SettingMetadata Settings::metadata_[] = {
-  { 0, MACRO_OSC_SHAPE_LAST - 2, "WAVE", algo_values },
+  { 0, MACRO_OSC_SHAPE_LAST - 1, "WAVE", algo_values },
   { 0, RESOLUTION_LAST - 1, "BITS", bits_values },
   { 0, SAMPLE_RATE_LAST - 1, "RATE", rates_values },
   { 0, 15, "\x8F""TIM", zero_to_fifteen_values },

@@ -384,8 +384,7 @@ void MacroOscillator::RenderVocalist(
 
   vocalist_.set_parameters(parameter_[0], parameter_[1]);
   vocalist_.set_pitch(pitch_);
-  vocalist_.set_shape(static_cast<DigitalOscillatorShape>(
-      shape_ - MACRO_OSC_SHAPE_SAM1));
+  vocalist_.set_shape(shape_ - MACRO_OSC_SHAPE_SAM1);
   vocalist_.Render(sync, buffer, size);
 }
 

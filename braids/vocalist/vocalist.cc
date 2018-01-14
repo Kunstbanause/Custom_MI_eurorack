@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../resources.h"
 #include "vocalist.h"
 #include "wordlist.h"
 
 void Vocalist::Init() {
     playing = false;
+    phase = 0;
     bank = 0;
     offset = 0;
     word = -1;
@@ -37,36 +39,64 @@ void Vocalist::Load() {
   }
 }
 
-void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int bufferLen) {
-  unsigned char buffer[6];
-  int len = bufferLen >> 2;
+static const uint16_t kHighestNote = 140 * 128;
+static const uint16_t kPitchTableStart = 128 * 128;
+static const uint16_t kOctave = 12 * 128;
 
+uint32_t ComputePhaseIncrement(int16_t midi_pitch) {
+  if (midi_pitch >= kPitchTableStart) {
+    midi_pitch = kPitchTableStart - 1;
+  }
+  
+  int32_t ref_pitch = midi_pitch;
+  ref_pitch -= kPitchTableStart;
+  
+  size_t num_shifts = 0;
+  while (ref_pitch < 0) {
+    ref_pitch += kOctave;
+    ++num_shifts;
+  }
+  
+  uint32_t a = braids::lut_oscillator_increments[ref_pitch >> 4];
+  uint32_t b = braids::lut_oscillator_increments[(ref_pitch >> 4) + 1];
+  uint32_t phase_increment = a + \
+      (static_cast<int32_t>(b - a) * (ref_pitch & 0xf) >> 4);
+  phase_increment >>= num_shifts;
+  return phase_increment;
+}
+
+// in braids, one cycle is 65536 * 65536 in the phase increment.
+// and since SAM is outputting 440hz at 22050 sample rate, one SAM cycle is (22050/440) samples
+// so every 65536 * 65536 / (22050/440) phase increment, we consume 1 SAM sample.
+// but we precompute to get an accurate number without integer overflow or rounding
+const uint32_t kPhasePerSample = 85704562;
+
+void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int len) {
   int written = 0;
+  unsigned char sample;
+  int phase_increment = ComputePhaseIncrement(braids_pitch);
 
   while (written < len) {
-    int wrote = sam.Drain(0, len - written, &buffer[written]);
-    written += wrote;
+    // TODO: try interpolation although I suspect it won't feel right
+    output[written++] = samples[0];
+    phase += phase_increment;
+    while (phase > kPhasePerSample) {
+      samples[0] = samples[1];
+      phase -= kPhasePerSample;
 
-    if (wrote == 0) {
-      if (sam.frameProcessorPosition != validOffset_[offset]) {
-        sam.SetFramePosition(validOffset_[offset]);
+      int wrote = 0;
+      while (wrote == 0) {
+        wrote = sam.Drain(0, 1, &sample);
+        samples[1] = (((int16_t) sample)-127) << 8;
+        
+        if (wrote == 0) {
+          if (sam.frameProcessorPosition != validOffset_[offset]) {
+            sam.SetFramePosition(validOffset_[offset]);
+          }
+          sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
+        }
       }
-      sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
     }
-  }
-
-  for (int i = written; i < len; i++) {
-    buffer[i] = 0x80;
-  }
-
-  for (int i = 0; i < 6; i+=1) {
-    int idx = i << 2;
-    int16_t value = (((int16_t) buffer[i])-127) << 8;
-
-    output[idx] = value;
-    output[idx+1] = value;
-    output[idx+2] = value;
-    output[idx+3] = value;
   }
 }
 
@@ -81,8 +111,8 @@ void Vocalist::set_parameters(uint16_t parameter1, uint16_t parameter2)
   offset = validOffsetLen_ * parameter2 / 32768;
 }
 
-void Vocalist::set_pitch(uint16_t braids_pitch) {
-  // TODO sam.SetPitch(82 + (64 - (braids_pitch >> 5)));
+void Vocalist::set_pitch(uint16_t pitch) {
+  braids_pitch = pitch;
 }
 
 void Vocalist::set_gatestate(bool gs) {
