@@ -244,23 +244,6 @@ void SAM::SetFramePosition(int pos) {
   mem38 = glottal_pulse - (glottal_pulse>>2); // mem44 * 0.75
 }
 
-// TODO: this function only processes a frame, really
-int SAM::FillBufferFromFrame(int count, uint8_t *buffer)
-{
-  if(framesRemaining) {
-    unsigned char absorbed = ProcessFrame(frameProcessorPosition, framesRemaining);
-
-    frameProcessorPosition += absorbed;
-    framesRemaining -= absorbed;
-  }
-
-  // TODO: skipping playing the absolute tail end of words
-  // if (written < count) {
-  //   written += Drain(0, count - written, &buffer[written]);
-  // }
-  return 0;
-}
-
 unsigned char SAM::ProcessFrame(unsigned char Y, unsigned char mem48)
 {
     unsigned char flags = sampledConsonantFlag[Y];

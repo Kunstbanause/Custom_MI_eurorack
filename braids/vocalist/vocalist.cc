@@ -6,12 +6,10 @@
 #include "wordlist.h"
 
 void Vocalist::Init() {
-    playing = false;
     phase = 0;
     bank = 0;
     offset = 0;
     word = -1;
-    risingEdge = 0;
     mode = MODE_NORMAL;
     
     SetWord(0);
@@ -29,7 +27,7 @@ void Vocalist::SetWord(unsigned char w) {
 }
 
 void Vocalist::Load() {
-  playing = false;
+  scan = false;
   if (mode == MODE_NORMAL) {
     sam.LoadTables(&data[wordpos[bank][word]], wordlen[bank][word]);
     sam.InitFrameProcessor();
@@ -90,10 +88,21 @@ void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int len) {
         samples[1] = (((int16_t) sample)-127) << 8;
         
         if (wrote == 0) {
-          if (sam.frameProcessorPosition != validOffset_[offset]) {
-            sam.SetFramePosition(validOffset_[offset]);
+          if (scan) {
+            if (sam.framesRemaining == 0) {
+              scan = false;
+            }
           }
-          sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
+          if (!scan) {
+            if (sam.frameProcessorPosition != validOffset_[offset]) {
+              // note this resets glottal pulse, and now that we modify frameProcessorPosition below that might
+              // be unwanted. If this sounds worse, only modify frameProcessorPosition when scanning.
+              sam.SetFramePosition(validOffset_[offset]);
+            }
+          }
+          unsigned char absorbed = sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
+          sam.frameProcessorPosition += absorbed;
+          sam.framesRemaining -= absorbed;
         }
       }
     }
@@ -115,11 +124,6 @@ void Vocalist::set_pitch(uint16_t pitch) {
   braids_pitch = pitch;
 }
 
-void Vocalist::set_gatestate(bool gs) {
-  if (!gatestate && gs) {
-    risingEdge = true;
-  }
-  gatestate = gs;
+void Vocalist::Strike() {
+  scan = true;
 }
-
-

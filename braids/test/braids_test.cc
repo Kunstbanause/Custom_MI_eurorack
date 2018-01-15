@@ -40,9 +40,9 @@ void TestAudioRendering() {
   osc.set_shape(MACRO_OSC_SHAPE_SAM1);
 
   for (uint32_t i = 0; i < kSampleRate * 5 / kAudioBlockSize; ++i) {
-    /*if ((i % 2000) == 0) {
+    if ((i % 2000) == 0) {
       osc.Strike();
-    }*/
+    }
     int16_t buffer[kAudioBlockSize];
     uint8_t sync_buffer[kAudioBlockSize];
     uint16_t tri = (i * 3);
@@ -50,7 +50,7 @@ void TestAudioRendering() {
     uint16_t ramp = i * 150;
     tri = tri > 32767 ? 65535 - tri : tri;
     tri2 = tri2 > 32767 ? 65535 - tri2 : tri2;
-    osc.set_parameters(tri, 0);
+    //osc.set_parameters(tri, 0);
     memset(sync_buffer, 0, sizeof(sync_buffer));
     //sync_buffer[0] = (i % 32) == 0 ? 1 : 0;
     osc.set_pitch((60 << 7));

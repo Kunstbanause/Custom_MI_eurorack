@@ -25,7 +25,7 @@ public:
 
   void Render(const uint8_t* sync_buffer, int16_t *output, int len);
   void set_gatestate(bool gs);
-  void Strike() { }
+  void Strike();
   // void SetBank(unsigned char b);
   void SetWord(unsigned char b);
 
@@ -46,9 +46,7 @@ private:
   uint16_t offset;
   unsigned char bank;
   unsigned char word;
-  bool gatestate;
-  bool risingEdge;
-  bool playing;
+  bool scan;
   const unsigned char *validOffset_;
   unsigned char validOffsetLen_;
 };

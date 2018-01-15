@@ -82,6 +82,7 @@ class MacroOscillator {
   
   inline void Strike() {
     digital_oscillator_.Strike();
+    vocalist_.Strike();
   }
   
   void Render(const uint8_t* sync_buffer, int16_t* buffer, size_t size);
