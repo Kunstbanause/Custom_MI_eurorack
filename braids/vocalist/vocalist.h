@@ -8,10 +8,6 @@
 
 #include "sam.h"
 
-#define MODE_NORMAL 0
-#define MODE_CRAZY 1
-#define MODE_REALLY_CRAZY 2
-
 class Vocalist {
 public:
   Vocalist() {
@@ -29,9 +25,7 @@ public:
   // void SetBank(unsigned char b);
   void SetWord(unsigned char b);
 
-  void SetMode(int m) { mode = m; }
   void set_pitch(uint16_t pitch);
-
   void set_parameters(uint16_t parameter1, uint16_t parameter2);
   
 private:
@@ -42,7 +36,6 @@ private:
   uint32_t phase;
 
   uint16_t braids_pitch;
-  unsigned char mode;
   uint16_t offset;
   unsigned char bank;
   unsigned char word;

@@ -10,7 +10,6 @@ void Vocalist::Init() {
     bank = 0;
     offset = 0;
     word = -1;
-    mode = MODE_NORMAL;
     
     SetWord(0);
 }
@@ -28,13 +27,11 @@ void Vocalist::SetWord(unsigned char w) {
 
 void Vocalist::Load() {
   scan = false;
-  if (mode == MODE_NORMAL) {
-    sam.LoadTables(&data[wordpos[bank][word]], wordlen[bank][word]);
-    sam.InitFrameProcessor();
+  sam.LoadTables(&data[wordpos[bank][word]], wordlen[bank][word]);
+  sam.InitFrameProcessor();
 
-    validOffset_ = &validOffset[validOffsetPos[bank][word]];
-    validOffsetLen_ = validOffsetLen[bank][word];
-  }
+  validOffset_ = &validOffset[validOffsetPos[bank][word]];
+  validOffsetLen_ = validOffsetLen[bank][word];
 }
 
 static const uint16_t kHighestNote = 140 * 128;
@@ -69,43 +66,61 @@ uint32_t ComputePhaseIncrement(int16_t midi_pitch) {
 // but we precompute to get an accurate number without integer overflow or rounding
 const uint32_t kPhasePerSample = 85704562;
 
-void Vocalist::Render(const uint8_t *sync_buffer, int16_t *output, int len) {
+void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
   int written = 0;
   unsigned char sample;
   int phase_increment = ComputePhaseIncrement(braids_pitch);
+  unsigned char samplesToLoad = 0;
 
   while (written < len) {
-    // TODO: try interpolation although I suspect it won't feel right
-    output[written++] = samples[0];
-    phase += phase_increment;
-    while (phase > kPhasePerSample) {
-      samples[0] = samples[1];
-      phase -= kPhasePerSample;
+    if (*sync++) {
+      phase = 0;
+      sam.InitFrameProcessor();
+      sam.SetFramePosition(validOffset_[offset]);
 
-      int wrote = 0;
-      while (wrote == 0) {
-        wrote = sam.Drain(0, 1, &sample);
+      // reload first two samples
+      samplesToLoad = 2;
+    }
+
+    while (phase > kPhasePerSample) {
+      samplesToLoad++;
+      phase -= kPhasePerSample;
+    }
+
+    while (samplesToLoad > 0) {
+      int wrote = sam.Drain(0, 1, &sample);
+      if (wrote) {
+        // there was data in the SAM buffer
+        samples[0] = samples[1];
         samples[1] = (((int16_t) sample)-127) << 8;
-        
-        if (wrote == 0) {
-          if (scan) {
-            if (sam.framesRemaining == 0) {
-              scan = false;
-            }
+        samplesToLoad--;
+      } else {
+        // no data remaining in frame buffer, update frame position
+        if (scan) {
+          if (sam.framesRemaining == 0) {
+            scan = false;
           }
-          if (!scan) {
-            if (sam.frameProcessorPosition != validOffset_[offset]) {
-              // note this resets glottal pulse, and now that we modify frameProcessorPosition below that might
-              // be unwanted. If this sounds worse, only modify frameProcessorPosition when scanning.
-              sam.SetFramePosition(validOffset_[offset]);
-            }
+        }
+        if (!scan) {
+          // not scanning, force frame processor to remain on current frame
+          if (sam.frameProcessorPosition != validOffset_[offset]) {
+            // note this resets glottal pulse, and now that we modify frameProcessorPosition below that might
+            // be unwanted. If this sounds worse, only modify frameProcessorPosition when scanning.
+            sam.SetFramePosition(validOffset_[offset]);
           }
-          unsigned char absorbed = sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
+        }
+        // load a new frame into sample buffer and update frame processor position
+        unsigned char absorbed = sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
+        if (scan) {
           sam.frameProcessorPosition += absorbed;
           sam.framesRemaining -= absorbed;
         }
       }
     }
+
+    // TODO: try interpolation although I suspect it won't feel right
+    output[written++] = samples[0];
+    phase += phase_increment;
   }
 }
 
