@@ -57,6 +57,7 @@ public:
 
   //void ProcessFrames(unsigned char mem48, int *bufferpos, char *buffer);
   int Drain(int threshold, int count, uint8_t *buffer);
+  
   int FillBufferFromFrame(int count, uint8_t *buffer);
   void SetFramePosition(int pos);
   unsigned char ProcessFrame(unsigned char Y, unsigned char mem48);

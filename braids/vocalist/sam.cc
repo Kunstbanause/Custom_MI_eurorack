@@ -70,7 +70,7 @@ void SAM::Output(int index, unsigned char A)
 
   // write a little bit in advance
   for(k=0; k<5; k++) {
-    tinyBuffer[(tinyBufferStart + (tinyBufferSize/50) + k) % MAX_TINY_BUFFER] = (A & 15)*16;
+    tinyBuffer[(tinyBufferStart + (tinyBufferSize/50) + k) % MAX_TINY_BUFFER] = A;
   }
 }
 
@@ -80,8 +80,8 @@ unsigned char SAM::RenderVoicedSample(unsigned short hi, unsigned char off, unsi
     unsigned char sample = sampleTable[hi+off];
     unsigned char bit = 8;
     do {
-      if ((sample & 128) != 0) Output(3, 26);
-      else Output(4, 6);
+      if ((sample & 128) != 0) Output(3, (26 & 0xf) << 4);
+      else Output(4, 6<<4);
       sample <<= 1;
     } while(--bit != 0);
     off++;
@@ -95,8 +95,8 @@ void SAM::RenderUnvoicedSample(unsigned short hi, unsigned char off, unsigned ch
     unsigned char bit = 8;
     unsigned char sample = sampleTable[hi+off];
     do {
-      if ((sample & 128) != 0) Output(2, 5);
-      else Output(1, mem53);
+      if ((sample & 128) != 0) Output(2, 5<<4);
+      else Output(1, (mem53 & 0xf)<<4);
       sample <<= 1;
     } while (--bit != 0);
   } while (++off != 0);
@@ -193,9 +193,9 @@ void SAM::CombineGlottalAndFormants(unsigned char phase1, unsigned char phase2, 
   tmp  += tmp > 255 ? 1 : 0; // if addition above overflows, we for some reason add one;
   tmp  += multtable[rectangle[phase3] | amplitude3[Y]];
   tmp  += 136;
-  tmp >>= 4; // Scale down to 0..15 range of C64 audio.
+  // tmp >>= 4; // Scale down to 0..15 range of C64 audio.
 
-  Output(0, tmp & 0xf);
+  Output(0, tmp);
 }
 
 // PROCESS THE FRAMES
@@ -240,8 +240,8 @@ void SAM::SetFramePosition(int pos) {
   frameProcessorPosition = pos;
   framesRemaining = totalFrames - pos;
 
-  glottal_pulse = pitches[pos];
-  mem38 = glottal_pulse - (glottal_pulse>>2); // mem44 * 0.75
+  //glottal_pulse = pitches[pos];
+  //mem38 = glottal_pulse - (glottal_pulse>>2); // mem44 * 0.75
 }
 
 unsigned char SAM::ProcessFrame(unsigned char Y, unsigned char mem48)
