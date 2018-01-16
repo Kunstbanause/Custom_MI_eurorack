@@ -75,7 +75,7 @@ class Svf {
     mode_ = mode;
   }
 
-  inline int32_t Process(int32_t in) {
+  int32_t Process(int32_t in) {
     if (dirty_) {
       f_ = stmlib::Interpolate824(lut_svf_cutoff, frequency_ << 17);
       damp_ = stmlib::Interpolate824(lut_svf_damp, resonance_ << 17);

@@ -154,7 +154,6 @@ enum Setting {
   // Not settings per-se, but used for menu display!
   SETTING_CALIBRATION,
   SETTING_CV_TESTER,
-  SETTING_MARQUEE,
   SETTING_VERSION,
   SETTING_LAST
 };
@@ -188,7 +187,6 @@ struct SettingsData {
   int16_t parameter_cv_offset[2];
   uint16_t parameter_cv_scale[2];
   
-  char marquee_text[55];
   char magic_byte;
 };
 
@@ -264,14 +262,6 @@ class Settings {
     return data_.quantizer_root;
   }
   
-  inline const char* marquee_text() const {
-    return data_.marquee_text;
-  }
-  
-  inline char* mutable_marquee_text() {
-    return data_.marquee_text;
-  }
-  
   inline const SettingsData& data() const { return data_; }
   inline SettingsData* mutable_data() { return &data_; }
   
@@ -344,10 +334,6 @@ class Settings {
     int32_t offset = static_cast<int32_t>(data_.parameter_cv_offset[index]);
     return (scale * adc_code >> 12) + offset;
   }
-
-  inline bool paques() const {
-    return paques_;
-  }
   
   static const SettingMetadata& metadata(Setting setting) {
     return metadata_[setting];
@@ -358,12 +344,9 @@ class Settings {
   }
   
  private:
-  void CheckPaques();
-
   SettingsData data_;
   
   uint16_t version_token_;
-  bool paques_;
   
   static const SettingMetadata metadata_[SETTING_LAST];
   static const Setting settings_order_[SETTING_LAST];

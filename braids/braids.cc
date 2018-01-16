@@ -191,9 +191,7 @@ void RenderBlock() {
       settings.GetValue(SETTING_AD_DECAY) * 8);
   uint32_t ad_value = envelope.Render();
   
-  if (ui.paques()) {
-    osc.set_shape(MACRO_OSC_SHAPE_QUESTION_MARK);
-  } else if (settings.meta_modulation()) {
+  if (settings.meta_modulation()) {
     int16_t shape = adc.channel(3);
     shape -= settings.data().fm_cv_offset;
     if (shape > previous_shape + 2 || shape < previous_shape - 2) {
@@ -260,7 +258,6 @@ void RenderBlock() {
   if (trigger_flag) {
     osc.Strike();
     envelope.Trigger(ENV_SEGMENT_ATTACK);
-    ui.StepMarquee();
     trigger_flag = false;
   }
   

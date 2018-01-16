@@ -69,7 +69,6 @@ const SettingsData kInitSettings = {
   
   { 0, 0 },
   { 32768, 32768 },
-  "GREETINGS FROM MUTABLE INSTRUMENTS *EDIT ME*",
 };
 
 Storage<0x8020000, 4> storage;
@@ -99,7 +98,6 @@ void Settings::Init() {
   if (!settings_within_range) {
     Reset();
   }
-  CheckPaques();
 }
 
 void Settings::Reset() {
@@ -110,11 +108,6 @@ void Settings::Reset() {
 void Settings::Save() {
   data_.magic_byte = 'M';
   storage.ParsimoniousSave(data_, &version_token_);
-  CheckPaques();
-}
-
-void Settings::CheckPaques() {
-  paques_ = !strcmp(data_.marquee_text, "49");
 }
 
 const char* const boolean_values[] = { "OFF ", "ON " };
@@ -332,7 +325,6 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 11, "ROOT", note_values },
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
-  { 0, 0, "    ", NULL },  // Placeholder for marquee
   { 0, 0, "v1.9", NULL },  // Placeholder for version string
 };
 
@@ -360,7 +352,6 @@ const Setting Settings::settings_order_[] = {
   SETTING_BRIGHTNESS,
   SETTING_CALIBRATION,
   SETTING_CV_TESTER,
-  SETTING_MARQUEE,
   SETTING_VERSION,
 };
 
