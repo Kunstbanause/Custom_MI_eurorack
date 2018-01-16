@@ -61,10 +61,10 @@ uint32_t ComputePhaseIncrement(int16_t midi_pitch) {
 }
 
 // in braids, one cycle is 65536 * 65536 in the phase increment.
-// and since SAM is outputting 440hz at 22050 sample rate, one SAM cycle is (22050/440) samples
-// so every 65536 * 65536 / (22050/440) phase increment, we consume 1 SAM sample.
+// and since SAM is outputting 155.6Hz at 22050 sample rate, one SAM cycle is (22050/155.6) samples
+// so every 65536 * 65536 / (22050/155.6) phase increment, we consume 1 SAM sample.
 // but we precompute to get an accurate number without integer overflow or rounding
-const uint32_t kPhasePerSample = 85704562;
+const uint32_t kPhasePerSample = 30308250;
 
 void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
   int written = 0;
@@ -73,14 +73,14 @@ void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
   unsigned char samplesToLoad = 0;
 
   while (written < len) {
-    if (*sync++) {
-      phase = 0;
-      sam.InitFrameProcessor();
-      sam.SetFramePosition(validOffset_[offset]);
+    // if (*sync++) {
+    //   phase = 0;
+    //   sam.InitFrameProcessor();
+    //   sam.SetFramePosition(validOffset_[offset]);
 
-      // reload first two samples
-      samplesToLoad = 2;
-    }
+    //   // reload first two samples
+    //   samplesToLoad = 2;
+    // }
 
     while (phase > kPhasePerSample) {
       samplesToLoad++;
@@ -126,13 +126,13 @@ void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
 
 void Vocalist::set_parameters(uint16_t parameter1, uint16_t parameter2)
 {
-  SetWord(parameter1 >> 11);
+  SetWord(parameter2 >> 11);
 
   // max parameter2 is 32767, divisor must be higher so max offset is sam.totalFrames-1
-  if (parameter2 > 32767) {
-    parameter2 = 32767;
+  if (parameter1 > 32767) {
+    parameter1 = 32767;
   }
-  offset = validOffsetLen_ * parameter2 / 32768;
+  offset = validOffsetLen_ * parameter1 / 32768;
 }
 
 void Vocalist::set_pitch(uint16_t pitch) {
@@ -141,4 +141,5 @@ void Vocalist::set_pitch(uint16_t pitch) {
 
 void Vocalist::Strike() {
   scan = true;
+  sam.SetFramePosition(validOffset_[offset]);
 }
