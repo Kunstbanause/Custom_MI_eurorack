@@ -53,7 +53,7 @@ void TestAudioRendering() {
     //osc.set_parameters(tri, 0);
     memset(sync_buffer, 0, sizeof(sync_buffer));
     //sync_buffer[0] = (i % 32) == 0 ? 1 : 0;
-    osc.set_pitch((60 << 7));
+    osc.set_pitch((50 << 7));
     osc.Render(sync_buffer, buffer, kAudioBlockSize);
     wav_writer.WriteFrames(buffer, kAudioBlockSize);
   }

@@ -36,7 +36,8 @@ public:
   ~SAM() { }
 
   void Init();
-  void LoadTables(const unsigned char *data, const unsigned char entryLen);
+  void LoadTables(const unsigned char *data);
+  unsigned char RLEGet(const unsigned char *rleData, unsigned char idx);
 
   // ---- render.cc
 

@@ -27,7 +27,7 @@ void Vocalist::SetWord(unsigned char w) {
 
 void Vocalist::Load() {
   scan = false;
-  sam.LoadTables(&data[wordpos[bank][word]], wordlen[bank][word]);
+  sam.LoadTables(&data[wordpos[bank][word]]);
   sam.InitFrameProcessor();
 
   validOffset_ = &validOffset[validOffsetPos[bank][word]];
