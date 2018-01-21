@@ -46,6 +46,10 @@ TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
 
 include stmlib/makefile.inc
 
+# don't use -Os for FM harmonics algorithm as it slows down computation resulting in dropouts
+$(BUILD_DIR)%.o: ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops -Os
+build/braids/harmonics.o: ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops
+
 # Rule for building the firmware update file
 wav:  $(TARGET_BIN)
 	python stm_audio_bootloader/qpsk/encoder.py \
