@@ -2,14 +2,6 @@
 #include "sam.h"
 #include "RenderTabs.h"
 
-enum {
-  pR    = 23,
-  pD    = 57,
-  pT    = 69,
-  BREAK = 254,
-  END   = 255
-};
-
 // TODO: put these in SAM
 char *tinyBuffer;
 unsigned short tinyBufferSize; // this is in a weird "actual size * 50" unit because that's what the generated code uses elsewhere for some calculations
@@ -63,12 +55,6 @@ unsigned char SAM::RLEGet(const unsigned char *rleData, unsigned char idx) {
     rleData += 2;
   }
   return rleData[1];
-}
-
-//return = hibyte(mem39212*mem39213) <<  1
-unsigned char trans(unsigned char a, unsigned char b)
-{
-  return ((a * b) >> 8) << 1;
 }
 
 //timetable for more accurate c64 simulation

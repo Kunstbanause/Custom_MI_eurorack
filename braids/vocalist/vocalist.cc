@@ -30,8 +30,8 @@ void Vocalist::Load() {
   sam.LoadTables(&data[wordpos[bank][word]]);
   sam.InitFrameProcessor();
 
-  validOffset_ = &validOffset[validOffsetPos[bank][word]];
-  validOffsetLen_ = validOffsetLen[bank][word];
+  doubleAbsorbOffset_ = &doubleAbsorbOffset[doubleAbsorbPos[bank][word]];
+  doubleAbsorbLen_ = doubleAbsorbLen[bank][word];
 }
 
 static const uint16_t kHighestNote = 140 * 128;
@@ -103,10 +103,10 @@ void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
         }
         if (!scan) {
           // not scanning, force frame processor to remain on current frame
-          if (sam.frameProcessorPosition != validOffset_[offset]) {
+          if (sam.frameProcessorPosition != targetOffset) {
             // note this resets glottal pulse, and now that we modify frameProcessorPosition below that might
             // be unwanted. If this sounds worse, only modify frameProcessorPosition when scanning.
-            sam.SetFramePosition(validOffset_[offset]);
+            sam.SetFramePosition(targetOffset);
           }
         }
         // load a new frame into sample buffer and update frame processor position
@@ -132,7 +132,12 @@ void Vocalist::set_parameters(uint16_t parameter1, uint16_t parameter2)
   if (parameter1 > 32767) {
     parameter1 = 32767;
   }
-  offset = validOffsetLen_ * parameter1 / 32768;
+  unsigned char offsetLen = sam.totalFrames - doubleAbsorbLen_;
+  offset = offsetLen * parameter1 / 32768;
+  for (unsigned char i = 0; i < doubleAbsorbLen_ && doubleAbsorbOffset[i] < offset; i++) {
+    offset++;
+  }
+  targetOffset = offset;
 }
 
 void Vocalist::set_pitch(uint16_t pitch) {
@@ -141,5 +146,5 @@ void Vocalist::set_pitch(uint16_t pitch) {
 
 void Vocalist::Strike() {
   scan = true;
-  sam.SetFramePosition(validOffset_[offset]);
+  sam.SetFramePosition(targetOffset);
 }

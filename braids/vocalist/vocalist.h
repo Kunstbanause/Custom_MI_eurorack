@@ -11,7 +11,6 @@
 class Vocalist {
 public:
   Vocalist() {
-
   }
 
   ~Vocalist() { }
@@ -37,11 +36,13 @@ private:
 
   uint16_t braids_pitch;
   uint16_t offset;
+  uint16_t targetOffset;
+
   unsigned char bank;
   unsigned char word;
   bool scan;
-  const unsigned char *validOffset_;
-  unsigned char validOffsetLen_;
+  const unsigned char *doubleAbsorbOffset_;
+  unsigned char doubleAbsorbLen_;
 };
 
 #endif
