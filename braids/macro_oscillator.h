@@ -67,6 +67,10 @@ class MacroOscillator {
     shape_ = shape;
   }
 
+  inline MacroOscillatorShape shape() {
+    return shape_;
+  }
+
   inline void set_pitch(int16_t pitch) {
     pitch_ = pitch;
   }

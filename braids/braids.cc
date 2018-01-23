@@ -52,7 +52,6 @@ using namespace braids;
 using namespace std;
 using namespace stmlib;
 
-
 const size_t kNumBlocks = 4;
 const size_t kBlockSize = 24;
 
@@ -178,6 +177,11 @@ const uint16_t bit_reduction_masks[] = {
 
 const uint16_t decimation_factors[] = { 24, 12, 6, 4, 3, 2, 1 };
 
+inline bool skipWaveshaper() {
+  int16_t shape = osc.shape();
+  return shape >= MACRO_OSC_SHAPE_SAM1 && shape < MACRO_OSC_SHAPE_SAM1 + NUM_BANKS;
+}
+
 void RenderBlock() {
   static int16_t previous_pitch = 0;
   static int16_t previous_shape = 0;
@@ -285,8 +289,14 @@ void RenderBlock() {
     }
     sample = sample * gain_lp >> 16;
     gain_lp += (gain - gain_lp) >> 4;
-    int16_t warped = ws.Transform(sample);
-    render_buffer[i] = Mix(sample, warped, signature);
+    if (skipWaveshaper()) {
+      // currently using an algorithm that uses the waveshaper's RAM
+      ws.dirty = true;
+      render_buffer[i] = sample;
+    } else {
+      int16_t warped = ws.Transform(sample);
+      render_buffer[i] = Mix(sample, warped, signature);
+    }
   }
   render_block = (render_block + 1) % kNumBlocks;
 #ifdef PROFILE_RENDER

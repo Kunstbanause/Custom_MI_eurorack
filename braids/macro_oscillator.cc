@@ -34,6 +34,7 @@
 
 #include "braids/parameter_interpolation.h"
 #include "braids/resources.h"
+#include "braids/vocalist/wordlist.h"
 
 namespace braids {
   
@@ -382,9 +383,9 @@ void MacroOscillator::RenderVocalist(
   int16_t* buffer,
   size_t size) {
 
+  vocalist_.set_shape(shape_ - MACRO_OSC_SHAPE_SAM1);
   vocalist_.set_parameters(parameter_[0], parameter_[1]);
   vocalist_.set_pitch(pitch_);
-  vocalist_.set_shape(shape_ - MACRO_OSC_SHAPE_SAM1);
   vocalist_.Render(sync, buffer, size);
 }
 
@@ -437,7 +438,18 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
+#if NUM_BANKS >= 1
   &MacroOscillator::RenderVocalist,
+#endif
+#if NUM_BANKS >= 2
+  &MacroOscillator::RenderVocalist,
+#endif
+#if NUM_BANKS >= 3
+  &MacroOscillator::RenderVocalist,
+#endif
+#if NUM_BANKS >= 4
+  &MacroOscillator::RenderVocalist,
+#endif
   &MacroOscillator::RenderDigital,
   // &MacroOscillator::RenderDigital
 };

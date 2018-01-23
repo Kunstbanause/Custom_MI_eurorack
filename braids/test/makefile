@@ -15,7 +15,8 @@ CC_FILES       = analog_oscillator.cc \
 		vocalist.cc \
 		sam.cc \
 		rendertabs.cc \
-		wordlist.cc
+		wordlist.cc \
+		harmonics.cc
 
 OBJ_FILES      = $(CC_FILES:.cc=.o)
 OBJS           = $(patsubst %,$(BUILD_DIR)%,$(OBJ_FILES)) $(STARTUP_OBJ)

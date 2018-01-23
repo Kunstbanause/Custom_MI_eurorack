@@ -15,7 +15,10 @@ void Vocalist::Init() {
 }
 
 void Vocalist::set_shape(int shape) {
-  bank = shape;
+  if (bank != shape) {
+    bank = shape;
+    Load();
+  }
 }
 
 void Vocalist::SetWord(unsigned char w) {

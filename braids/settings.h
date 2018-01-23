@@ -30,6 +30,7 @@
 #define BRAIDS_SETTINGS_H_
 
 #include "stmlib/stmlib.h"
+#include "braids/vocalist/wordlist.h"
 
 namespace braids {
 
@@ -89,13 +90,22 @@ enum MacroOscillatorShape {
   MACRO_OSC_SHAPE_PARTICLE_NOISE,
   
   MACRO_OSC_SHAPE_DIGITAL_MODULATION,
+#if NUM_BANKS >= 1
   MACRO_OSC_SHAPE_SAM1,
+#endif
+#if NUM_BANKS >= 2
   MACRO_OSC_SHAPE_SAM2,
-
+#endif
+#if NUM_BANKS >= 3
+  MACRO_OSC_SHAPE_SAM3,
+#endif
+#if NUM_BANKS >= 4
+  MACRO_OSC_SHAPE_SAM4,
+#endif
   MACRO_OSC_SHAPE_QUESTION_MARK,
   // MACRO_OSC_SHAPE_YOUR_ALGO
   MACRO_OSC_SHAPE_LAST,
-  MACRO_OSC_SHAPE_LAST_ACCESSIBLE_FROM_META = MACRO_OSC_SHAPE_SAM1
+  MACRO_OSC_SHAPE_LAST_ACCESSIBLE_FROM_META = MACRO_OSC_SHAPE_QUESTION_MARK
 };
 
 enum Resolution {

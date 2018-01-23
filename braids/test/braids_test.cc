@@ -37,7 +37,7 @@ void TestAudioRendering() {
   wav_writer.Open("oscillator.wav");
 
   osc.Init();
-  osc.set_shape(MACRO_OSC_SHAPE_SAM1);
+  osc.set_shape(MACRO_OSC_SHAPE_SAM3);
 
   for (uint32_t i = 0; i < kSampleRate * 5 / kAudioBlockSize; ++i) {
     if ((i % 2000) == 0) {

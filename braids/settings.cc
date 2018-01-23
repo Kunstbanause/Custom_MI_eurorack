@@ -32,6 +32,7 @@
 
 #include "stmlib/system/storage.h"
 #include "stmlib/utils/murmurhash3.h"
+#include "braids/vocalist/wordlist.h"
 
 namespace braids {
 
@@ -184,8 +185,19 @@ const char* const algo_values[] = {
     "CLOU",
     "PRTC",
     "QPSK",
+#if NUM_BANKS >= 1
     "SAM1",
-    "SAM2"
+#endif
+#if NUM_BANKS >= 2
+    "SAM2",
+#endif
+#if NUM_BANKS >= 3
+    "SAM3",
+#endif
+#if NUM_BANKS >= 4
+    "SAM4",
+#endif
+    "????"
     // "NAME" // For your algorithm
 };
 
