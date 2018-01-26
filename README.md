@@ -1,4 +1,4 @@
-This is the source code for [Braids Renaissance](https://burns.ca/eurorack).
+This is the source code for [Braids Renaissance](https://burns.ca/eurorack.html).
 
 License
 =======
