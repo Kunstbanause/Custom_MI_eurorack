@@ -10,6 +10,7 @@ Code (STM32F projects): MIT license.
 Hardware: cc-by-sa-3.0
 
 Original firmware by: Olivier Gillet (olivier@mutable-instruments.net)
+
 Braids Renaissance contributions by Tom Burns (tom@burns.ca)
 
 Guidelines for derivative works
