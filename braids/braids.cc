@@ -161,7 +161,6 @@ void Init() {
   
   envelope.Init();
   ws.Init(GetUniqueId(1));
-  tinyBuffer = (char *) &ws.transfer_[0];
   jitter_source.Init();
   sys.StartTimers();
 }
@@ -176,11 +175,6 @@ const uint16_t bit_reduction_masks[] = {
     0xffff };
 
 const uint16_t decimation_factors[] = { 24, 12, 6, 4, 3, 2, 1 };
-
-inline bool skipWaveshaper() {
-  int16_t shape = osc.shape();
-  return shape >= MACRO_OSC_SHAPE_SAM1 && shape < MACRO_OSC_SHAPE_SAM1 + NUM_BANKS;
-}
 
 void RenderBlock() {
   static int16_t previous_pitch = 0;
@@ -289,14 +283,8 @@ void RenderBlock() {
     }
     sample = sample * gain_lp >> 16;
     gain_lp += (gain - gain_lp) >> 4;
-    if (skipWaveshaper()) {
-      // currently using an algorithm that uses the waveshaper's RAM
-      ws.dirty = true;
-      render_buffer[i] = sample;
-    } else {
-      int16_t warped = ws.Transform(sample);
-      render_buffer[i] = Mix(sample, warped, signature);
-    }
+    int16_t warped = ws.Transform(sample);
+    render_buffer[i] = Mix(sample, warped, signature);
   }
   render_block = (render_block + 1) % kNumBlocks;
 #ifdef PROFILE_RENDER

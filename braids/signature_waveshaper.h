@@ -43,8 +43,6 @@ class SignatureWaveshaper {
   ~SignatureWaveshaper() { }
   
   inline void Init(uint32_t seed) {
-    seed_ = seed;
-    dirty = false;
     int32_t skew = seed & 15;
     seed >>= 4;
     
@@ -81,9 +79,6 @@ class SignatureWaveshaper {
   }
   
   inline int32_t Transform(int16_t sample) {
-    if (dirty) {
-      Init(seed_);
-    }
     uint16_t i = sample + 32768;
     int32_t a = transfer_[i >> 8];
     int32_t b = transfer_[(i >> 8) + 1];
@@ -91,8 +86,6 @@ class SignatureWaveshaper {
   }
 
   int32_t transfer_[257];
-  bool dirty;
-  uint32_t seed_;
 
 private:   
   DISALLOW_COPY_AND_ASSIGN(SignatureWaveshaper);

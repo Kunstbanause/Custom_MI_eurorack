@@ -36,6 +36,7 @@
 
 #include "braids/parameter_interpolation.h"
 #include "braids/resources.h"
+#include "settings.h"
 
 namespace braids {
   
@@ -2447,6 +2448,17 @@ void DigitalOscillator::RenderCymbal(
   }
 }
 
+void DigitalOscillator::RenderVocalist(
+  const uint8_t* sync,
+  int16_t* buffer,
+  size_t size) {
+
+  vocalist_.set_shape(shape_ - (MACRO_OSC_SHAPE_SAM1 - MACRO_OSC_SHAPE_TRIPLE_RING_MOD));
+  vocalist_.set_parameters(parameter_[0], parameter_[1]);
+  vocalist_.set_pitch(pitch_);
+  vocalist_.Render(sync, buffer, size);
+}
+
 /*
 void DigitalOscillator::RenderYourAlgo(
     const uint8_t* sync,
@@ -2494,6 +2506,19 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderGranularCloud,
   &DigitalOscillator::RenderParticleNoise,
   &DigitalOscillator::RenderDigitalModulation,
+
+#if NUM_BANKS >= 1
+  &DigitalOscillator::RenderVocalist,
+#endif
+#if NUM_BANKS >= 2
+  &DigitalOscillator::RenderVocalist,
+#endif
+#if NUM_BANKS >= 3
+  &DigitalOscillator::RenderVocalist,
+#endif
+#if NUM_BANKS >= 4
+  &DigitalOscillator::RenderVocalist,
+#endif
   // &DigitalOscillator::RenderYourAlgo,
 
   &DigitalOscillator::RenderQuestionMark

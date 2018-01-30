@@ -8,6 +8,23 @@
 
 #include "sam.h"
 
+struct VocalistState {
+  int16_t samples[2];
+  uint32_t phase;
+
+  uint16_t braids_pitch;
+  uint16_t offset;
+  uint16_t targetOffset;
+
+  unsigned char bank;
+  unsigned char word;
+  bool scan;
+  const unsigned char *doubleAbsorbOffset_;
+  unsigned char doubleAbsorbLen_;
+
+  struct SamState samState;
+};
+
 class Vocalist {
 public:
   Vocalist() {
@@ -15,7 +32,7 @@ public:
 
   ~Vocalist() { }
 
-  void Init();
+  void Init(VocalistState *s);
   void set_shape(int shape);
 
   void Render(const uint8_t* sync_buffer, int16_t *output, int len);
@@ -31,18 +48,7 @@ private:
   void Load();
 
   SAM sam;
-  int16_t samples[2];
-  uint32_t phase;
-
-  uint16_t braids_pitch;
-  uint16_t offset;
-  uint16_t targetOffset;
-
-  unsigned char bank;
-  unsigned char word;
-  bool scan;
-  const unsigned char *doubleAbsorbOffset_;
-  unsigned char doubleAbsorbLen_;
+  struct VocalistState *state;
 };
 
 #endif

@@ -33,6 +33,7 @@
 
 #include "braids/excitation.h"
 #include "braids/svf.h"
+#include "vocalist/vocalist.h"
 
 #include <cstring>
 
@@ -252,6 +253,8 @@ class DigitalOscillator {
     svf_[0].Init();
     svf_[1].Init();
     svf_[2].Init();
+    vocalist_.Init(&delay_lines_.vocalistState);
+
     phase_ = 0;
     strike_ = true;
     init_ = true;
@@ -283,6 +286,7 @@ class DigitalOscillator {
   
   inline void Strike() {
     strike_ = true;
+    vocalist_.Strike();
   }
 
   void Render(const uint8_t* sync, int16_t* buffer, size_t size);
@@ -327,6 +331,7 @@ class DigitalOscillator {
   void RenderSnare(const uint8_t*, int16_t*, size_t);
   void RenderCymbal(const uint8_t*, int16_t*, size_t);
   void RenderQuestionMark(const uint8_t*, int16_t*, size_t);
+  void RenderVocalist(const uint8_t*, int16_t*, size_t);
   
   // void RenderYourAlgo(const uint8_t*, int16_t*, size_t);
   
@@ -371,7 +376,10 @@ class DigitalOscillator {
       int8_t jet[kWGJetLength];
       int8_t bore[kWGFBoreLength];
     } fluted;
+    VocalistState vocalistState;
   } delay_lines_;
+
+  Vocalist vocalist_;
   
   static RenderFn fn_table_[];
   

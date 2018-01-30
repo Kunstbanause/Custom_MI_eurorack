@@ -5,36 +5,40 @@
 #include "vocalist.h"
 #include "wordlist.h"
 
-void Vocalist::Init() {
-    phase = 0;
-    bank = 0;
-    offset = 0;
-    word = -1;
+void Vocalist::Init(VocalistState *s) {
+    state = s;
+
+    sam.Init(&state->samState);
+    state->phase = 0;
+    state->bank = 0;
+    state->offset = 0;
+    state->word = -1;
     
     SetWord(0);
 }
 
 void Vocalist::set_shape(int shape) {
-  if (bank != shape) {
-    bank = shape;
+  if (state->bank != shape) {
+    state->bank = shape;
     Load();
   }
 }
 
 void Vocalist::SetWord(unsigned char w) {
-  if (word != w) {
-    word = w;
+  if (state->word != w) {
+    state->word = w;
     Load();
   }
 }
 
 void Vocalist::Load() {
-  scan = false;
-  sam.LoadTables(&data[wordpos[bank][word]]);
+  state->scan = false;
+  state->phase = 0;
+  sam.LoadTables(&data[wordpos[state->bank][state->word]]);
   sam.InitFrameProcessor();
 
-  doubleAbsorbOffset_ = &doubleAbsorbOffset[doubleAbsorbPos[bank][word]];
-  doubleAbsorbLen_ = doubleAbsorbLen[bank][word];
+  state->doubleAbsorbOffset_ = &doubleAbsorbOffset[doubleAbsorbPos[state->bank][state->word]];
+  state->doubleAbsorbLen_ = doubleAbsorbLen[state->bank][state->word];
 }
 
 static const uint16_t kHighestNote = 140 * 128;
@@ -72,7 +76,7 @@ const uint32_t kPhasePerSample = 30308250;
 void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
   int written = 0;
   unsigned char sample;
-  int phase_increment = ComputePhaseIncrement(braids_pitch);
+  int phase_increment = ComputePhaseIncrement(state->braids_pitch);
   unsigned char samplesToLoad = 0;
 
   while (written < len) {
@@ -85,45 +89,45 @@ void Vocalist::Render(const uint8_t *sync, int16_t *output, int len) {
     //   samplesToLoad = 2;
     // }
 
-    while (phase > kPhasePerSample) {
+    while (state->phase > kPhasePerSample) {
       samplesToLoad++;
-      phase -= kPhasePerSample;
+      state->phase -= kPhasePerSample;
     }
 
     while (samplesToLoad > 0) {
       int wrote = sam.Drain(0, 1, &sample);
       if (wrote) {
         // there was data in the SAM buffer
-        samples[0] = samples[1];
-        samples[1] = (((int16_t) sample)-127) << 8;
+        state->samples[0] = state->samples[1];
+        state->samples[1] = (((int16_t) sample)-127) << 8;
         samplesToLoad--;
       } else {
         // no data remaining in frame buffer, update frame position
-        if (scan) {
-          if (sam.framesRemaining == 0) {
-            scan = false;
+        if (state->scan) {
+          if (sam.state->framesRemaining == 0) {
+            state->scan = false;
           }
         }
-        if (!scan) {
+        if (!state->scan) {
           // not scanning, force frame processor to remain on current frame
-          if (sam.frameProcessorPosition != targetOffset) {
+          if (sam.state->frameProcessorPosition != state->targetOffset) {
             // note this resets glottal pulse, and now that we modify frameProcessorPosition below that might
             // be unwanted. If this sounds worse, only modify frameProcessorPosition when scanning.
-            sam.SetFramePosition(targetOffset);
+            sam.SetFramePosition(state->targetOffset);
           }
         }
         // load a new frame into sample buffer and update frame processor position
-        unsigned char absorbed = sam.ProcessFrame(sam.frameProcessorPosition, sam.framesRemaining);
-        if (scan) {
-          sam.frameProcessorPosition += absorbed;
-          sam.framesRemaining -= absorbed;
+        unsigned char absorbed = sam.ProcessFrame(sam.state->frameProcessorPosition, sam.state->framesRemaining);
+        if (state->scan) {
+          sam.state->frameProcessorPosition += absorbed;
+          sam.state->framesRemaining -= absorbed;
         }
       }
     }
 
     // TODO: try interpolation although I suspect it won't feel right
-    output[written++] = samples[0];
-    phase += phase_increment;
+    output[written++] = state->samples[0];
+    state->phase += phase_increment;
   }
 }
 
@@ -135,19 +139,19 @@ void Vocalist::set_parameters(uint16_t parameter1, uint16_t parameter2)
   if (parameter1 > 32767) {
     parameter1 = 32767;
   }
-  unsigned char offsetLen = sam.totalFrames - doubleAbsorbLen_;
-  offset = offsetLen * parameter1 / 32768;
-  for (unsigned char i = 0; i < doubleAbsorbLen_ && doubleAbsorbOffset[i] < offset; i++) {
+  unsigned char offsetLen = sam.state->totalFrames - state->doubleAbsorbLen_;
+  uint16_t offset = offsetLen * parameter1 / 32768;
+  for (unsigned char i = 0; i < state->doubleAbsorbLen_ && state->doubleAbsorbOffset_[i] < offset; i++) {
     offset++;
   }
-  targetOffset = offset;
+  state->targetOffset = offset;
 }
 
 void Vocalist::set_pitch(uint16_t pitch) {
-  braids_pitch = pitch;
+  state->braids_pitch = pitch;
 }
 
 void Vocalist::Strike() {
-  scan = true;
-  sam.SetFramePosition(targetOffset);
+  state->scan = true;
+  sam.SetFramePosition(state->targetOffset);
 }

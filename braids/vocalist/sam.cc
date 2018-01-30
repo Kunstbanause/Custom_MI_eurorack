@@ -3,11 +3,18 @@
 #include "RenderTabs.h"
 
 // TODO: put these in SAM
-char *tinyBuffer;
-unsigned short tinyBufferSize; // this is in a weird "actual size * 50" unit because that's what the generated code uses elsewhere for some calculations
-unsigned short tinyBufferStart; // this is a direct index into tinyBuffer where the ring buffer begins.
+void SAM::Init(struct SamState *s) {
+    state = s;
 
-void SAM::Init() {
+    //standard sam sound
+    state->speed = 72;
+
+    state->speedcounter = 72;
+    state->phase1 = 0;
+    state->phase2 = 0;
+    state->phase3 = 0;
+
+    state->mem66 = 0;
 }
 
 void SAM::LoadTables(const unsigned char *data) {
@@ -19,33 +26,33 @@ void SAM::LoadTables(const unsigned char *data) {
 
   // "table length" table length....... i know
   offset += 8;
-  frequency1 = &data[offset];
+  state->frequency1 = &data[offset];
   offset += tableLength[0];
-  frequency2 = &data[offset];
+  state->frequency2 = &data[offset];
   offset += tableLength[1];
-  frequency3 = &data[offset];
+  state->frequency3 = &data[offset];
   offset += tableLength[2];
-  pitches = &data[offset];
+  state->pitches = &data[offset];
   offset += tableLength[3];
-  amplitude1 = &data[offset];
+  state->amplitude1 = &data[offset];
   offset += tableLength[4];
-  amplitude2 = &data[offset];
+  state->amplitude2 = &data[offset];
   offset += tableLength[5];
-  amplitude3 = &data[offset];
+  state->amplitude3 = &data[offset];
   offset += tableLength[6];
-  sampledConsonantFlag = &data[offset];
+  state->sampledConsonantFlag = &data[offset];
   offset += tableLength[7];
 
   // measure uncompressed length of frequency1 to calculate total frames in this word
-  framesRemaining = 0;
+  state->framesRemaining = 0;
   offset = 0;
   while (offset < tableLength[0]) {
-    framesRemaining += frequency1[offset];
+    state->framesRemaining += state->frequency1[offset];
     offset += 2;
   }
 
-  frameProcessorPosition = 0;
-  totalFrames = framesRemaining;
+  state->frameProcessorPosition = 0;
+  state->totalFrames = state->framesRemaining;
 }
 
 // does not protect against overruns
@@ -71,15 +78,15 @@ void SAM::Output(int index, unsigned char A)
 {
   static unsigned oldtimetableindex = 0;
   int k;
-  tinyBufferSize = tinyBufferSize + timetable[oldtimetableindex][index];
+  state->tinyBufferSize = state->tinyBufferSize + timetable[oldtimetableindex][index];
   oldtimetableindex = index;
-  if ((tinyBufferSize/50) + 5 >= 5000) {
+  if ((state->tinyBufferSize/50) + 5 >= 5000) {
     return;
   }
 
   // write a little bit in advance
   for(k=0; k<5; k++) {
-    tinyBuffer[(tinyBufferStart + (tinyBufferSize/50) + k) % MAX_TINY_BUFFER] = A;
+    state->tinyBuffer[(state->tinyBufferStart + (state->tinyBufferSize/50) + k) % MAX_TINY_BUFFER] = A;
   }
 }
 
@@ -186,7 +193,7 @@ void SAM::RenderSample(unsigned char *mem66, unsigned char consonantFlag, unsign
   unsigned char pitch = consonantFlag & 248;
   if(pitch == 0) {
     // voiced phoneme: Z*, ZH, V*, DH
-    pitch = RLEGet(pitches, mem49) >> 4;
+    pitch = RLEGet(state->pitches, mem49) >> 4;
     *mem66 = RenderVoicedSample(hi, *mem66, pitch ^ 255);
     return;
   }
@@ -197,10 +204,10 @@ void SAM::CombineGlottalAndFormants(unsigned char phase1, unsigned char phase2, 
 {
   unsigned int tmp;
 
-  tmp   = multtable[sinus[phase1]     | RLEGet(amplitude1, Y)];
-  tmp  += multtable[sinus[phase2]     | RLEGet(amplitude2, Y)];
+  tmp   = multtable[sinus[state->phase1]     | RLEGet(state->amplitude1, Y)];
+  tmp  += multtable[sinus[state->phase2]     | RLEGet(state->amplitude2, Y)];
   tmp  += tmp > 255 ? 1 : 0; // if addition above overflows, we for some reason add one;
-  tmp  += multtable[rectangle[phase3] | RLEGet(amplitude3, Y)];
+  tmp  += multtable[rectangle[state->phase3] | RLEGet(state->amplitude3, Y)];
   tmp  += 136;
   // tmp >>= 4; // Scale down to 0..15 range of C64 audio.
 
@@ -217,16 +224,16 @@ void SAM::CombineGlottalAndFormants(unsigned char phase1, unsigned char phase2, 
 // reset at the beginning of each glottal pulse.
 //
 void SAM::InitFrameProcessor() {
-  frameProcessorPosition = 0;
-  glottal_pulse = RLEGet(pitches, 0);
-  mem38 = glottal_pulse - (glottal_pulse >> 2); // mem44 * 0.75
-  tinyBufferSize = 0;
-  tinyBufferStart = 0;
+  state->frameProcessorPosition = 0;
+  state->glottal_pulse = RLEGet(state->pitches, 0);
+  state->mem38 = state->glottal_pulse - (state->glottal_pulse >> 2); // mem44 * 0.75
+  state->tinyBufferSize = 0;
+  state->tinyBufferStart = 0;
 }
 
 int SAM::Drain(int threshold, int count, uint8_t *buffer)
 {
-  int available = (tinyBufferSize / 50) - threshold;
+  int available = (state->tinyBufferSize / 50) - threshold;
   if (available <= 0) {
     return 0;
   }
@@ -236,18 +243,18 @@ int SAM::Drain(int threshold, int count, uint8_t *buffer)
 
   // consume N sound bytes
   for (int k = 0; k < available; k++) {
-    buffer[k] = tinyBuffer[(tinyBufferStart+k) % MAX_TINY_BUFFER];
+    buffer[k] = state->tinyBuffer[(state->tinyBufferStart+k) % MAX_TINY_BUFFER];
   }
 
-  tinyBufferSize -= (available * 50);
-  tinyBufferStart = (tinyBufferStart + available) % MAX_TINY_BUFFER;
+  state->tinyBufferSize -= (available * 50);
+  state->tinyBufferStart = (state->tinyBufferStart + available) % MAX_TINY_BUFFER;
 
   return available;
 }
 
 void SAM::SetFramePosition(int pos) {
-  frameProcessorPosition = pos;
-  framesRemaining = totalFrames - pos;
+  state->frameProcessorPosition = pos;
+  state->framesRemaining = state->totalFrames - pos;
 
   //glottal_pulse = pitches[pos];
   //mem38 = glottal_pulse - (glottal_pulse>>2); // mem44 * 0.75
@@ -255,59 +262,59 @@ void SAM::SetFramePosition(int pos) {
 
 unsigned char SAM::ProcessFrame(unsigned char Y, unsigned char mem48)
 {
-    unsigned char flags = RLEGet(sampledConsonantFlag, Y);
+    unsigned char flags = RLEGet(state->sampledConsonantFlag, Y);
     unsigned char absorbed = 0;
 
     // unvoiced sampled phoneme?
     if(flags & 248) {
-      RenderSample(&mem66, flags, Y);
+      RenderSample(&state->mem66, flags, Y);
       // skip ahead two in the phoneme buffer
-      speedcounter = speed;
+      state->speedcounter = state->speed;
       absorbed = 2;
     } else {
-      CombineGlottalAndFormants(phase1, phase2, phase3, Y);
+      CombineGlottalAndFormants(state->phase1, state->phase2, state->phase3, Y);
 
-      speedcounter--;
-      if (speedcounter == 0) {
+      state->speedcounter--;
+      if (state->speedcounter == 0) {
         absorbed = 1;
 
         if(mem48 == 1) {
           return absorbed;
         }
-        speedcounter = speed;
+        state->speedcounter = state->speed;
       }
 
-      --glottal_pulse;
+      --state->glottal_pulse;
 
-      if(glottal_pulse != 0) {
+      if(state->glottal_pulse != 0) {
         // not finished with a glottal pulse
 
-        --mem38;
+        --state->mem38;
         // within the first 75% of the glottal pulse?
         // is the count non-zero and the sampled flag is zero?
-        if((mem38 != 0) || (flags == 0)) {
+        if((state->mem38 != 0) || (flags == 0)) {
           // reset the phase of the formants to match the pulse
-          phase1 += RLEGet(frequency1, Y + absorbed);
-          phase2 += RLEGet(frequency2, Y + absorbed);
-          phase3 += RLEGet(frequency3, Y + absorbed);
+          state->phase1 += RLEGet(state->frequency1, Y + absorbed);
+          state->phase2 += RLEGet(state->frequency2, Y + absorbed);
+          state->phase3 += RLEGet(state->frequency3, Y + absorbed);
           return absorbed;
         }
 
         // voiced sampled phonemes interleave the sample with the
         // glottal pulse. The sample flag is non-zero, so render
         // the sample for the phoneme.
-        RenderSample(&mem66, flags, Y + absorbed);
+        RenderSample(&state->mem66, flags, Y + absorbed);
       }
     }
 
-    glottal_pulse = RLEGet(pitches, Y + absorbed);
-    mem38 = glottal_pulse - (glottal_pulse>>2); // mem44 * 0.75
+    state->glottal_pulse = RLEGet(state->pitches, Y + absorbed);
+    state->mem38 = state->glottal_pulse - (state->glottal_pulse>>2); // mem44 * 0.75
 
     // reset the formant wave generators to keep them in
     // sync with the glottal pulse
-    phase1 = 0;
-    phase2 = 0;
-    phase3 = 0;
+    state->phase1 = 0;
+    state->phase2 = 0;
+    state->phase3 = 0;
 
     return absorbed;
 }
