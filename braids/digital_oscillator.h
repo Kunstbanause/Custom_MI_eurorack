@@ -55,6 +55,12 @@ static const size_t kNumAdditiveHarmonics = 12;
 
 enum DigitalOscillatorShape {
   OSC_SHAPE_TRIPLE_RING_MOD,
+
+  OSC_SHAPE_STACK_SAW,
+  OSC_SHAPE_STACK_SQUARE,
+  OSC_SHAPE_STACK_TRIANGLE,
+  OSC_SHAPE_STACK_SINE,
+
   OSC_SHAPE_SAW_SWARM,
   OSC_SHAPE_COMB_FILTER,
   OSC_SHAPE_TOY,
@@ -217,6 +223,12 @@ struct HatState {
   uint32_t rng_state;
 };
 
+struct StackState {
+  uint32_t phase[6];
+  int32_t amplitude[6];
+  int16_t previous_sample;
+};
+
 union DigitalOscillatorState {
   ResoSquareState res;
   VowelSynthesizerState vow;
@@ -234,6 +246,7 @@ union DigitalOscillatorState {
   ClockedNoiseState clk;
   HatState hat;
   HarmonicsState hrm;
+  StackState stack;
   uint32_t modulator_phase;
 };
 
@@ -332,7 +345,8 @@ class DigitalOscillator {
   void RenderCymbal(const uint8_t*, int16_t*, size_t);
   void RenderQuestionMark(const uint8_t*, int16_t*, size_t);
   void RenderVocalist(const uint8_t*, int16_t*, size_t);
-  
+  void RenderStack(const uint8_t*, int16_t*, size_t);
+
   // void RenderYourAlgo(const uint8_t*, int16_t*, size_t);
   
   uint32_t ComputePhaseIncrement(int16_t midi_pitch);

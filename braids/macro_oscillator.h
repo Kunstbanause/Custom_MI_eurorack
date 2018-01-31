@@ -52,9 +52,6 @@ class MacroOscillator {
     analog_oscillator_[0].Init();
     analog_oscillator_[1].Init();
     analog_oscillator_[2].Init();
-    analog_oscillator_[3].Init();
-    analog_oscillator_[4].Init();
-    analog_oscillator_[5].Init();
 
     digital_oscillator_.Init();
 
@@ -104,7 +101,6 @@ class MacroOscillator {
   void RenderDigital(const uint8_t*, int16_t*, size_t);
   void RenderSawComb(const uint8_t*, int16_t*, size_t);
   void RenderTriple(const uint8_t*, int16_t*, size_t);
-  void RenderSextuple(const uint8_t*, int16_t*, size_t);
 
   void ConfigureTriple(AnalogOscillatorShape shape);
 
@@ -115,7 +111,7 @@ class MacroOscillator {
   int16_t temp_buffer_[24];
   int32_t lp_state_;
   
-  AnalogOscillator analog_oscillator_[6];
+  AnalogOscillator analog_oscillator_[3];
   DigitalOscillator digital_oscillator_;
   
   MacroOscillatorShape shape_;

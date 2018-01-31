@@ -44,7 +44,7 @@ RESOURCES      = braids/resources
 
 TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
 
-SKIP_MINIMIZATION = build/braids/harmonics.o build/braids/analog_oscillator.o build/braids/sextuple.o
+SKIP_MINIMIZATION = build/braids/harmonics.o build/braids/stack.o build/braids/quantizer.o
 
 include stmlib/makefile.inc
 

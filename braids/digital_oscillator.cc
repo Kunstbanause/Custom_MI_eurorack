@@ -2473,6 +2473,10 @@ void DigitalOscillator::RenderYourAlgo(
 /* static */
 DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderTripleRingMod,
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
   &DigitalOscillator::RenderSawSwarm,
   &DigitalOscillator::RenderComb,
   &DigitalOscillator::RenderToy,
