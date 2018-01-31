@@ -151,6 +151,7 @@ const char* const algo_values[] = {
     "\x8C_x3",
     "/\\x3",
     "SIx3",
+    "SIx6",
     "RING",
     "\x88\x89\x88\x89",
     "\x88\x88\x8E\x8E",

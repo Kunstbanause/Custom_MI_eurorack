@@ -44,11 +44,13 @@ RESOURCES      = braids/resources
 
 TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
 
+SKIP_MINIMIZATION = build/braids/harmonics.o build/braids/analog_oscillator.o build/braids/sextuple.o
+
 include stmlib/makefile.inc
 
 # don't use -Os for FM harmonics algorithm as it slows down computation resulting in dropouts
 $(BUILD_DIR)%.o: ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops -Os
-build/braids/harmonics.o: ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops
+$(SKIP_MINIMIZATION): ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops
 
 # Rule for building the firmware update file
 wav:  $(TARGET_BIN)

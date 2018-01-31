@@ -86,18 +86,18 @@ int32_t Quantizer::Process(int32_t pitch, int32_t root) {
     int16_t lower_bound_index = upper_bound_index - 2;
 
     int16_t best_distance = 16384;
-    int16_t q = -1;
+    index = -1;
     for (int16_t i = lower_bound_index; i <= upper_bound_index; ++i) {
       int16_t distance = abs(pitch - codebook_[i]);
       if (distance < best_distance) {
         best_distance = distance;
-        q = i;
+        index = i;
       }
     }
-    codeword_ = codebook_[q];
+    codeword_ = codebook_[index];
     // Enlarge the current voronoi cell a bit for hysteresis.
-    previous_boundary_ = (9 * codebook_[q - 1] + 7 * codeword_) >> 4;
-    next_boundary_ = (9 * codebook_[q + 1] + 7 * codeword_) >> 4;
+    previous_boundary_ = (9 * codebook_[index - 1] + 7 * codeword_) >> 4;
+    next_boundary_ = (9 * codebook_[index + 1] + 7 * codeword_) >> 4;
     pitch = codeword_;
   }
   pitch += root;

@@ -104,6 +104,7 @@ class MacroOscillator {
   void RenderDigital(const uint8_t*, int16_t*, size_t);
   void RenderSawComb(const uint8_t*, int16_t*, size_t);
   void RenderTriple(const uint8_t*, int16_t*, size_t);
+  void RenderSextuple(const uint8_t*, int16_t*, size_t);
 
   void ConfigureTriple(AnalogOscillatorShape shape);
 

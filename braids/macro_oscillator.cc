@@ -224,6 +224,8 @@ void MacroOscillator::RenderTriple(
   }
 }
 
+
+
 void MacroOscillator::RenderSub(
     const uint8_t* sync,
     int16_t* buffer,
@@ -393,6 +395,7 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
+  &MacroOscillator::RenderSextuple,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderSawComb,
