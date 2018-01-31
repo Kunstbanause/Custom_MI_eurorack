@@ -16,7 +16,7 @@ namespace braids {
 
 using namespace stmlib;
 
-const int kStackSize = 6;
+const int kStackSize = 5;
 
 const uint8_t amplitudes[] = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -44,7 +44,7 @@ void DigitalOscillator::RenderStack(
   if (quantizer.enabled_) {
     uint16_t index = quantizer.index;
     for (size_t i = 1; i < kStackSize; i++) {
-      index = index + span % 128;
+      index = (index + span) % 128;
       phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.codebook_[index]);
     }
   } else {
@@ -55,27 +55,25 @@ void DigitalOscillator::RenderStack(
     }
   }
 
-  int32_t target_amplitude[kStackSize];
-  int32_t amplitude[kStackSize];
+  // int32_t target_amplitude[kStackSize];
+  // int32_t amplitude[kStackSize];
+  // int16_t pos = parameter_[0] >> 9;
+  // int16_t fractional = parameter_[0] & 0x1ff;
 
-  int16_t pos = parameter_[0] >> 9;
-  int16_t fractional = parameter_[0] & 0x1ff;
-
-  for (int i = 0; i < kStackSize; i++) {
-    uint32_t x = amplitudes[(pos + i) & 0x3f] << 8;
-    uint32_t y = amplitudes[(pos + i + 1) & 0x3f] << 8;
-    target_amplitude[i] = ((y * fractional) + (x * (0x1ff - fractional))) >> 9;
-    amplitude[i] = state_.stack.amplitude[i];
-  }
+  // for (int i = 0; i < kStackSize; i++) {
+  //   uint32_t x = amplitudes[(pos + i) & 0x3f] << 8;
+  //   uint32_t y = amplitudes[(pos + i + 1) & 0x3f] << 8;
+  //   target_amplitude[i] = ((y * fractional) + (x * (0x1ff - fractional))) >> 9;
+  //   amplitude[i] = state_.stack.amplitude[i];
+  // }
   
   int16_t previous_sample = state_.stack.previous_sample;
 
   // pulse width for square stack
-  uint32_t pw = 1<<31;
+  const uint32_t pw = 1<<31;
 
   while (size) {
     int32_t out;
-    int32_t tmp;
     uint32_t phase;
     
     out = 0;
@@ -84,13 +82,14 @@ void DigitalOscillator::RenderStack(
 
       // <<1 is due to downsampling
       state_.stack.phase[i] += phase_increment[i] << 1;
+
       if (reset) {
         state_.stack.phase[i] = 0;
       }
       switch (shape_) {
         case OSC_SHAPE_STACK_SAW:
           //to get 0..2^32 to conform to 32767->-32768
-          tmp = (1 << 15) - (state_.stack.phase[i] >> 16);
+          out += ((1 << 15) - (state_.stack.phase[i] >> 16)) >> 3;
 
           break;
         case OSC_SHAPE_STACK_TRIANGLE:
@@ -100,27 +99,27 @@ void DigitalOscillator::RenderStack(
           phase = state_.stack.phase[i] >> 15;
 
           if (phase > 1<<16) {
-            tmp = (1 << 15) - (phase & 0xffff);
+            out += ((1 << 15) - (phase & 0xffff)) >> 3;
           } else {
-            tmp = phase - (1<<15);
+            out += (phase - (1<<15)) >> 3;
           }
           break;
         case OSC_SHAPE_STACK_SQUARE:
           if (state_.stack.phase[i] > pw) {
             // don't use full range as it's more likely to 
             // clip than others
-            tmp = 26000;
+            out += 26000 >> 3;
           } else {
-            tmp = -26000;
+            out += -26000 >> 3;
           }
           break;
         default:
-            tmp = Interpolate824(wav_sine, state_.stack.phase[i]);
+            out += Interpolate824(wav_sine, state_.stack.phase[i]) >> 3;
           break;
       }
 
-      out += (tmp * amplitude[i]) >> 18;
-      amplitude[i] += (target_amplitude[i] - amplitude[i]) >> 4;
+      //out += tmp >> 3; //(tmp * amplitude[i]) >> 18;
+      //amplitude[i] += (target_amplitude[i] - amplitude[i]) >> 4;
     }
     CLIP(out)
     *buffer++ = (out + previous_sample) >> 1;
@@ -129,9 +128,9 @@ void DigitalOscillator::RenderStack(
     size -= 2;
   }
   state_.stack.previous_sample = previous_sample;
-  for (size_t i = 0; i < kStackSize; ++i) {
-    state_.stack.amplitude[i] = amplitude[i];
-  }
+  // for (size_t i = 0; i < kStackSize; ++i) {
+  //   state_.stack.amplitude[i] = amplitude[i];
+  // }
 }
 
 }

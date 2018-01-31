@@ -50,7 +50,7 @@ include stmlib/makefile.inc
 
 # don't use -Os for FM harmonics algorithm as it slows down computation resulting in dropouts
 $(BUILD_DIR)%.o: ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops -Os
-$(SKIP_MINIMIZATION): ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops
+$(SKIP_MINIMIZATION): ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops -O3
 
 # Rule for building the firmware update file
 wav:  $(TARGET_BIN)
