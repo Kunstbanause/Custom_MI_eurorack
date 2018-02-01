@@ -139,6 +139,9 @@ void TIM1_UP_IRQHandler(void) {
 void Init() {
   sys.Init(F_CPU / 96000 - 1, true);
   settings.Init();
+  settings.Reset();
+  settings.Save();
+  
   ui.Init();
   system_clock.Init();
   adc.Init(false);

@@ -40,9 +40,9 @@ void TestAudioRendering() {
   osc.set_shape(MACRO_OSC_SHAPE_STACK_SINE);
 
   for (uint32_t i = 0; i < kSampleRate * 10 / kAudioBlockSize; ++i) {
-    if ((i % 2000) == 0) {
-      osc.Strike();
-    }
+    // if ((i % 2000) == 0) {
+    //   osc.Strike();
+    // }
     int16_t buffer[kAudioBlockSize];
     uint8_t sync_buffer[kAudioBlockSize];
     uint16_t tri = (i / 3);

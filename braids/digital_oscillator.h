@@ -104,6 +104,19 @@ enum DigitalOscillatorShape {
 
   OSC_SHAPE_DIGITAL_MODULATION,
 
+#if NUM_BANKS >= 1
+  OSC_SHAPE_SAM1,
+#endif
+#if NUM_BANKS >= 2
+  OSC_SHAPE_SAM2,
+#endif
+#if NUM_BANKS >= 3
+  OSC_SHAPE_SAM3,
+#endif
+#if NUM_BANKS >= 4
+  OSC_SHAPE_SAM4,
+#endif
+
   OSC_SHAPE_QUESTION_MARK_LAST
 };
 
