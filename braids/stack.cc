@@ -103,10 +103,12 @@ void DigitalOscillator::RenderStack(
           phase = state_.stack.phase[i] >> 15;
 
           if (phase > 1<<16) {
-            tmp = (1 << 15) - (phase & 0xffff);
+            tmp = ((1 << 15) - (phase & 0xffff));
           } else {
-            tmp = phase - (1<<15);
+            tmp = (phase - (1<<15));
           }
+          tmp = (tmp >> 1) + (tmp >> 3);
+
           break;
         case OSC_SHAPE_STACK_SQUARE:
           if (state_.stack.phase[i] > pw) {
@@ -118,7 +120,8 @@ void DigitalOscillator::RenderStack(
           }
           break;
         default:
-            tmp = Interpolate824(wav_sine, state_.stack.phase[i]) * 900 / 1000;
+            tmp = Interpolate824(wav_sine, state_.stack.phase[i]);
+            tmp = (tmp >> 1) + (tmp >> 3);
           break;
       }
 
