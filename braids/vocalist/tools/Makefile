@@ -6,10 +6,11 @@ CC = g++
 # libsdl present
 CFLAGS =  -Wall -DUSESDL -g
 
-all: parser src/wordlist.cc
+all: wordlist.cc
+	mv wordlist.cc wordlist.h ..
 
-src/wordlist.cc: parser src/generator.rb
-	ruby ./src/generator.rb
+wordlist.cc: parser src/generator.rb words
+	ruby ./src/generator.rb words
 
 parser: $(PARSER_OBJS)
 	$(CC) -o parser $(PARSER_OBJS)
@@ -18,4 +19,4 @@ parser: $(PARSER_OBJS)
 	$(CC) $(CFLAGS) -Isrc -c $<
 
 clean:
-	rm *.o ./src/wordlist.cc
+	rm *.o ./wordlist.cc
