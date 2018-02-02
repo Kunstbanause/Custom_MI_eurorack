@@ -3,9 +3,9 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "../sam/reciter.h"
-#include "../sam/sam.h"
-#include "../sam/debug.h"
+#include "reciter.h"
+#include "sam.h"
+#include "debug.h"
 
 void PrintUsage()
 {
