@@ -2453,8 +2453,9 @@ void DigitalOscillator::RenderVocalist(
   int16_t* buffer,
   size_t size) {
 
-  if (strike_) {
+  if (init_) {
     memset(&delay_lines_.vocalistState, 0, sizeof(delay_lines_.vocalistState));
+    init_ = false;
   }
 
   vocalist_.set_shape(shape_ - (MACRO_OSC_SHAPE_SAM1 - MACRO_OSC_SHAPE_TRIPLE_RING_MOD));
