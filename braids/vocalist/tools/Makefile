@@ -1,22 +1,20 @@
-OBJS = reciter.o sam.o render.o debug.o processframes.o createtransitions.o rendertabs.o
-PARSER_OBJS = $(OBJS) parser.o
+OBJS = reciter.o sam.o render.o debug.o processframes.o createtransitions.o rendertabs.o parser.o
+PARSER_OBJS = $(addprefix braids/vocalist/tools/src/, $(OBJS))
 
 CC = g++
 
-# libsdl present
-CFLAGS =  -Wall -DUSESDL -g
+CFLAGS =  -Wall -g
 
-all: wordlist.cc
-	mv wordlist.cc wordlist.h ..
+all: braids/vocalist/wordlist.cc
 
-wordlist.cc: parser src/generator.rb words
-	ruby ./src/generator.rb words
+braids/vocalist/wordlist.cc: braids/vocalist/tools/parser
+	ruby ./braids/vocalist/tools/src/generator.rb braids/vocalist/tools/words
 
-parser: $(PARSER_OBJS)
-	$(CC) -o parser $(PARSER_OBJS)
+braids/vocalist/tools/parser: $(PARSER_OBJS)
+	$(CC) -o braids/vocalist/tools/parser $(PARSER_OBJS)
 
-%.o: src/%.cc
-	$(CC) $(CFLAGS) -Isrc -c $<
+braids/vocalist/tools/src/%.o: braids/vocalist/tools/src/%.cc
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm *.o ./wordlist.cc
+	rm braids/vocalist/tools/parser braids/vocalist/tools/src/*.o braids/vocalist/wordlist.* || true
