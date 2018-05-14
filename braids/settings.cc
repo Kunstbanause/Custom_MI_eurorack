@@ -62,6 +62,7 @@ const SettingsData kInitSettings = {
   0,  // AD->FM
   0,  // AD->COLOR
   0,  // AD->VCA
+  0,  // Invert Encoder
   0,  // Quantizer root
   
   50,
@@ -338,6 +339,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 15, "\x8F""FM ", zero_to_fifteen_values },
   { 0, 15, "\x8F""COL", zero_to_fifteen_values },
   { 0, 1, "\x8F""VCA", boolean_values },
+  { 0, 1, "NVRT", boolean_values },
   { 0, 11, "ROOT", note_values },
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
@@ -366,6 +368,7 @@ const Setting Settings::settings_order_[] = {
   SETTING_VCO_DRIFT,
   SETTING_SIGNATURE,
   SETTING_BRIGHTNESS,
+  SETTING_ENCODER_DIRECTION,
   SETTING_CALIBRATION,
   SETTING_CV_TESTER,
   SETTING_VERSION,

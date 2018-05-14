@@ -70,6 +70,9 @@ void Ui::Poll() {
   }
   int32_t increment = encoder_.increment();
   if (increment != 0) {
+    if (settings.invert_encoder()) {
+      increment *= -1;
+    }
     queue_.AddEvent(CONTROL_ENCODER, 0, increment);
   }
   
