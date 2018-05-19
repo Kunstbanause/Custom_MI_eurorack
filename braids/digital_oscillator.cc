@@ -2478,6 +2478,10 @@ void DigitalOscillator::RenderYourAlgo(
 /* static */
 DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderTripleRingMod,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
   &DigitalOscillator::RenderStack,
   &DigitalOscillator::RenderStack,
   &DigitalOscillator::RenderStack,
