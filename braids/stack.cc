@@ -95,6 +95,7 @@ inline void DigitalOscillator::renderChordSine(
 
     sample = (sample >> 2) + (sample >> 5);
     CLIP(sample)
+
     *buffer++ = sample;
 
     size -= 2;
@@ -261,7 +262,7 @@ inline void DigitalOscillator::renderChordTriangle(
   state_.stack.phase[5] = phase_5;
 }
 
-#define CALC_SQUARE(x, width) ((x > width) ? 26000 : -26000)
+#define CALC_SQUARE(x, width) ((x > width) ? 5400 : -5400)
 
 inline void DigitalOscillator::renderChordSquare(
   const uint8_t *sync, 
@@ -271,7 +272,7 @@ inline void DigitalOscillator::renderChordSquare(
   uint8_t noteCount) {
 
   uint32_t phase_0, phase_1, phase_2, phase_3, phase_4, phase_5;
-  const uint32_t pw = 1<<31;
+  uint32_t pw = parameter_[0] << 16;
 
   phase_0 = state_.stack.phase[0];
   phase_1 = state_.stack.phase[1];
@@ -300,7 +301,6 @@ inline void DigitalOscillator::renderChordSquare(
       sample += CALC_SQUARE(phase_5, pw);
     }
 
-    sample = (sample >> 2) + (sample >> 3);
     CLIP(sample)
     *buffer++ = sample;
 
@@ -321,7 +321,6 @@ inline void DigitalOscillator::renderChordSquare(
       sample += CALC_SQUARE(phase_5, pw);
     }
 
-    sample = (sample >> 2) + (sample >> 3);
     CLIP(sample)
     *buffer++ = sample;
 
