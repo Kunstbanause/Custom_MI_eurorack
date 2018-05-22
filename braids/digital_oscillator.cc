@@ -1547,19 +1547,13 @@ void DigitalOscillator::RenderWaveMap(
   }
 }
 
-static const uint8_t wave_line[] = {
+const uint8_t wave_line[] = {
   187, 179, 154, 155, 135, 134, 137, 19, 24, 3, 8, 66, 79, 25, 180, 174, 64,
   127, 198, 15, 10, 7, 11, 0, 191, 192, 115, 238, 237, 236, 241, 47, 70, 76,
   235, 26, 133, 208, 34, 175, 183, 146, 147, 148, 150, 151, 152, 153, 117,
   138, 32, 33, 35, 125, 199, 201, 30, 31, 193, 27, 29, 21, 18, 182
 };
 
-
-static const uint8_t mini_wave_line[] = {
-  157, 161, 171, 188, 189, 191, 192, 193, 196, 198, 201, 234, 232,
-  229, 226, 224, 1, 2, 3, 4, 5, 8, 12, 32, 36, 42, 47, 252, 254, 141, 139,
-  135, 174
-};
 
 void DigitalOscillator::RenderWaveLine(
     const uint8_t* sync,
@@ -1664,106 +1658,6 @@ void DigitalOscillator::RenderWaveLine(
   }
   phase_ = phase;
   previous_parameter_[0] = smoothed_parameter_ >> 1;
-}
-
-#define SEMI * 128
-
-static const uint16_t chords[17][3] = {
-  { 2, 4, 6 },
-  { 16, 32, 48 },
-  { 2 SEMI, 7 SEMI, 12 SEMI },
-  { 3 SEMI, 7 SEMI, 10 SEMI },
-  { 3 SEMI, 7 SEMI, 12 SEMI },
-  { 3 SEMI, 7 SEMI, 14 SEMI },
-  { 3 SEMI, 7 SEMI, 17 SEMI },
-  { 7 SEMI, 12 SEMI, 19 SEMI },
-  { 7 SEMI, 3 + 12 SEMI, 5 + 19 SEMI },
-  { 4 SEMI, 7 SEMI, 17 SEMI },
-  { 4 SEMI, 7 SEMI, 14 SEMI },
-  { 4 SEMI, 7 SEMI, 12 SEMI },
-  { 4 SEMI, 7 SEMI, 11 SEMI },
-  { 5 SEMI, 7 SEMI, 12 SEMI },
-  { 4, 7 SEMI, 12 SEMI },
-  { 4, 4 + 12 SEMI, 12 SEMI },
-  { 4, 4 + 12 SEMI, 12 SEMI },
-};
-
-void DigitalOscillator::RenderWaveParaphonic(
-    const uint8_t* sync,
-    int16_t* buffer,
-    size_t size) {
-  if (strike_) {
-    for (size_t i = 0; i < 4; ++i) {
-      state_.saw.phase[i] = Random::GetWord();
-    }
-    strike_ = false;
-  }
-  
-  // Do not use an array here to allow these to be kept in arbitrary registers.
-  uint32_t phase_0, phase_1, phase_2, phase_3;
-  uint32_t phase_increment[3];
-  uint32_t phase_increment_0;
-
-  phase_increment_0 = phase_increment_;
-  phase_0 = state_.saw.phase[0];
-  phase_1 = state_.saw.phase[1];
-  phase_2 = state_.saw.phase[2];
-  phase_3 = state_.saw.phase[3];
-  
-  uint16_t chord_integral = parameter_[1] >> 11;
-  uint16_t chord_fractional = parameter_[1] << 5;
-  if (chord_fractional < 30720) {
-    chord_fractional = 0;
-  } else if (chord_fractional >= 34816) {
-    chord_fractional = 65535;
-  } else {
-    chord_fractional = (chord_fractional - 30720) * 16;
-  }
-  
-  for (size_t i = 0; i < 3; ++i) {
-    uint16_t detune_1 = chords[chord_integral][i];
-    uint16_t detune_2 = chords[chord_integral + 1][i];
-    uint16_t detune = detune_1 + ((detune_2 - detune_1) * chord_fractional >> 16);
-    phase_increment[i] = ComputePhaseIncrement(pitch_ + detune);
-  }
-
-  const uint8_t* wave_1 = wt_waves + mini_wave_line[parameter_[0] >> 10] * 129;
-  const uint8_t* wave_2 = wt_waves + mini_wave_line[(parameter_[0] >> 10) + 1] * 129;
-  uint16_t wave_xfade = parameter_[0] << 6;
-  
-  while (size) {
-    int32_t sample = 0;
-    
-    phase_0 += phase_increment_0;
-    phase_1 += phase_increment[0];
-    phase_2 += phase_increment[1];
-    phase_3 += phase_increment[2];
-
-    sample += Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
-    sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
-    sample += Crossfade(wave_1, wave_2, phase_2 >> 1, wave_xfade);
-    sample += Crossfade(wave_1, wave_2, phase_3 >> 1, wave_xfade);
-    *buffer++ = sample >> 2;
-    
-    phase_0 += phase_increment_0;
-    phase_1 += phase_increment[0];
-    phase_2 += phase_increment[1];
-    phase_3 += phase_increment[2];
-    
-    sample = 0;
-    sample += Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
-    sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
-    sample += Crossfade(wave_1, wave_2, phase_2 >> 1, wave_xfade);
-    sample += Crossfade(wave_1, wave_2, phase_3 >> 1, wave_xfade);
-    *buffer++ = sample >> 2;
-    size -= 2;
-  }
-  
-  state_.saw.phase[0] = phase_0;
-  state_.saw.phase[1] = phase_1;
-  state_.saw.phase[2] = phase_2;
-  state_.saw.phase[3] = phase_3;
-
 }
 
 void DigitalOscillator::RenderFilteredNoise(
@@ -2482,10 +2376,14 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderDiatonicChord,
   &DigitalOscillator::RenderDiatonicChord,
   &DigitalOscillator::RenderDiatonicChord,
+  &DigitalOscillator::RenderDiatonicChord,
+
   &DigitalOscillator::RenderStack,
   &DigitalOscillator::RenderStack,
   &DigitalOscillator::RenderStack,
   &DigitalOscillator::RenderStack,
+  &DigitalOscillator::RenderStack,
+
   &DigitalOscillator::RenderSawSwarm,
   &DigitalOscillator::RenderComb,
   &DigitalOscillator::RenderToy,
@@ -2512,7 +2410,6 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderWavetables,
   &DigitalOscillator::RenderWaveMap,
   &DigitalOscillator::RenderWaveLine,
-  &DigitalOscillator::RenderWaveParaphonic,
   &DigitalOscillator::RenderFilteredNoise,
   &DigitalOscillator::RenderTwinPeaksNoise,
   &DigitalOscillator::RenderClockedNoise,

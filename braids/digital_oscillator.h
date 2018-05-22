@@ -60,11 +60,13 @@ enum DigitalOscillatorShape {
   OSC_SHAPE_CHORD_SQUARE,
   OSC_SHAPE_CHORD_TRIANGLE,
   OSC_SHAPE_CHORD_SINE,
+  OSC_SHAPE_CHORD_WAVETABLE,
 
   OSC_SHAPE_STACK_SAW,
   OSC_SHAPE_STACK_SQUARE,
   OSC_SHAPE_STACK_TRIANGLE,
   OSC_SHAPE_STACK_SINE,
+  OSC_SHAPE_STACK_WAVETABLE,
 
   OSC_SHAPE_SAW_SWARM,
   OSC_SHAPE_COMB_FILTER,
@@ -99,7 +101,6 @@ enum DigitalOscillatorShape {
   OSC_SHAPE_WAVETABLES,
   OSC_SHAPE_WAVE_MAP,
   OSC_SHAPE_WAVE_LINE,
-  OSC_SHAPE_WAVE_PARAPHONIC,
   
   OSC_SHAPE_FILTERED_NOISE,
   OSC_SHAPE_TWIN_PEAKS_NOISE,
@@ -349,7 +350,6 @@ class DigitalOscillator {
   void RenderWavetables(const uint8_t*, int16_t*, size_t);
   void RenderWaveMap(const uint8_t*, int16_t*, size_t);
   void RenderWaveLine(const uint8_t*, int16_t*, size_t);
-  void RenderWaveParaphonic(const uint8_t*, int16_t*, size_t);
   
   void RenderTwinPeaksNoise(const uint8_t*, int16_t*, size_t);
   void RenderFilteredNoise(const uint8_t*, int16_t*, size_t);
@@ -371,6 +371,41 @@ class DigitalOscillator {
     int16_t *buffer, 
     size_t size, 
     uint8_t* noteOffset, 
+    uint8_t noteCount);
+
+  void renderChordWavetable(
+    const uint8_t *sync, 
+    int16_t *buffer, 
+    size_t size, 
+    uint32_t *phase_offsets, 
+    uint8_t noteCount);
+
+  void renderChordSaw(
+    const uint8_t *sync, 
+    int16_t *buffer, 
+    size_t size, 
+    uint32_t *phase_offsets, 
+    uint8_t noteCount);
+  
+  void renderChordSquare(
+    const uint8_t *sync, 
+    int16_t *buffer, 
+    size_t size, 
+    uint32_t *phase_offsets, 
+    uint8_t noteCount);
+
+  void renderChordSine(
+    const uint8_t *sync, 
+    int16_t *buffer, 
+    size_t size, 
+    uint32_t *phase_offsets, 
+    uint8_t noteCount);
+
+  void renderChordTriangle(
+    const uint8_t *sync, 
+    int16_t *buffer, 
+    size_t size, 
+    uint32_t *phase_offsets, 
     uint8_t noteCount);
 
   // void RenderYourAlgo(const uint8_t*, int16_t*, size_t);
