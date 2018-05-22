@@ -62,8 +62,6 @@ inline void DigitalOscillator::renderChordSine(
     sample += Interpolate824(wav_sine, phase_1) >> 2;
     sample += Interpolate824(wav_sine, phase_2) >> 2;
     sample += Interpolate824(wav_sine, phase_3) >> 2;
-    sample += Interpolate824(wav_sine, phase_4) >> 2;
-    sample += Interpolate824(wav_sine, phase_5) >> 2;
 
     if (noteCount > 4) {
       sample += Interpolate824(wav_sine, phase_4) >> 2;
@@ -203,8 +201,6 @@ inline void DigitalOscillator::renderChordTriangle(
   phase_4 = state_.stack.phase[4];
   phase_5 = state_.stack.phase[5];
 
-  int16_t gain = 2048 + (parameter_[0] * 30720 >> 15);
-
   while (size) {
     int32_t sample = 0;
     
@@ -227,11 +223,7 @@ inline void DigitalOscillator::renderChordTriangle(
       sample += CALC_TRIANGLE(phase_5);
     }
 
-    //sample = (sample >> 2) + (sample >> 3);
-
-    sample = (sample * gain) >> 15;
-    sample = Interpolate88(ws_tri_fold, sample + 32768);
-
+    sample = (sample >> 2) + (sample >> 3);
     CLIP(sample)
     *buffer++ = sample;
 
@@ -254,8 +246,7 @@ inline void DigitalOscillator::renderChordTriangle(
       sample += CALC_TRIANGLE(phase_5);
     }
 
-    sample = (sample * gain) >> 15;
-    sample = Interpolate88(ws_tri_fold, sample + 32768);
+    sample = (sample >> 2) + (sample >> 3);
     CLIP(sample)
     *buffer++ = sample;
 
@@ -296,8 +287,6 @@ inline void DigitalOscillator::renderChordSquare(
     phase_1 += phase_increment[1];
     phase_2 += phase_increment[2];
     phase_3 += phase_increment[3];
-    phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
 
     sample = CALC_SQUARE(phase_0, pw);
     sample += CALC_SQUARE(phase_1, pw);
@@ -319,8 +308,6 @@ inline void DigitalOscillator::renderChordSquare(
     phase_1 += phase_increment[1];
     phase_2 += phase_increment[2];
     phase_3 += phase_increment[3];
-    phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
 
     sample = CALC_SQUARE(phase_0, pw);
     sample += CALC_SQUARE(phase_1, pw);
@@ -417,7 +404,7 @@ inline void DigitalOscillator::renderChordWavetable(
       sample += Crossfade(wave_1, wave_2, phase_5 >> 1, wave_xfade);
     }
 
-    sample = (sample >> 2) + (sample >> 5);
+    sample = (sample >> 2) + (sample >> 6);
     CLIP(sample)
     *buffer++ = sample;
     
@@ -439,7 +426,7 @@ inline void DigitalOscillator::renderChordWavetable(
       sample += Crossfade(wave_1, wave_2, phase_5 >> 1, wave_xfade);
     }
 
-    sample = (sample >> 2) + (sample >> 5);
+    sample = (sample >> 2) + (sample >> 6);
     CLIP(sample)
     *buffer++ = sample;
 
@@ -496,16 +483,20 @@ inline void DigitalOscillator::renderChord(
       phase_increment[i+1] = ComputePhaseIncrement(pitch_ + detune);
     }
   } else {
-    uint16_t index = quantizer.index;
-    if (!quantizer.enabled_) {
-      index = 0;
-    }
-    fm = pitch_ - quantizer.codebook_[quantizer.index];
+    if (quantizer.enabled_) {
+      uint16_t index = quantizer.index;
+      fm = pitch_ - quantizer.codebook_[quantizer.index];
 
-    phase_increment[0] = phase_increment_;
-    for (size_t i = 1; i < noteCount; i++) {
-      index = (index + noteOffset[i-1]) % 128;
-      phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.codebook_[index] + fm);
+      phase_increment[0] = phase_increment_;
+      for (size_t i = 1; i < noteCount; i++) {
+        index = (index + noteOffset[i-1]) % 128;
+        phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.codebook_[index] + fm);
+      }
+    } else {
+      phase_increment[0] = phase_increment_;
+      for (size_t i = 1; i < noteCount; i++) {
+        phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(pitch_ + (noteOffset[i-1]<<7));
+      }
     }
   }
 

@@ -431,12 +431,6 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
 #if NUM_BANKS >= 1
   &MacroOscillator::RenderDigital,
 #endif
@@ -449,6 +443,10 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
 #if NUM_BANKS >= 4
   &MacroOscillator::RenderDigital,
 #endif
+  &MacroOscillator::RenderDigital,
+  &MacroOscillator::RenderDigital,
+  &MacroOscillator::RenderDigital,
+  &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   // &MacroOscillator::RenderDigital
 };

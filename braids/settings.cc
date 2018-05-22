@@ -157,10 +157,12 @@ const char* const algo_values[] = {
     "\x8C_CH",
     "/\\CH",
     "SICH",
+    "WTCH",
     "\x88\x88x6",
     "\x8C_x6",
     "/\\x6",
     "SIx6",
+    "WTx6",
     "\x88\x89\x88\x89",
     "\x88\x88\x8E\x8E",
     "TOY*",
@@ -188,12 +190,6 @@ const char* const algo_values[] = {
     "WMAP",
     "WLIN",
     "WTx4",
-    "NOIS",
-    "TWNQ",
-    "CLKN",
-    "CLOU",
-    "PRTC",
-    "QPSK",
 #if NUM_BANKS >= 1
     "SAM1",
 #endif
@@ -206,8 +202,11 @@ const char* const algo_values[] = {
 #if NUM_BANKS >= 4
     "SAM4",
 #endif
-    "????"
-    // "NAME" // For your algorithm
+    "NOIS",
+    "TWNQ",
+    "CLKN",
+    "CLOU",
+    "PRTC",    // "NAME" // For your algorithm
 };
 
 const char* const bits_values[] = {

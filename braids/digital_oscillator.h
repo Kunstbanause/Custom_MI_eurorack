@@ -101,14 +101,6 @@ enum DigitalOscillatorShape {
   OSC_SHAPE_WAVETABLES,
   OSC_SHAPE_WAVE_MAP,
   OSC_SHAPE_WAVE_LINE,
-  
-  OSC_SHAPE_FILTERED_NOISE,
-  OSC_SHAPE_TWIN_PEAKS_NOISE,
-  OSC_SHAPE_CLOCKED_NOISE,
-  OSC_SHAPE_GRANULAR_CLOUD,
-  OSC_SHAPE_PARTICLE_NOISE,
-
-  OSC_SHAPE_DIGITAL_MODULATION,
 
 #if NUM_BANKS >= 1
   OSC_SHAPE_SAM1,
@@ -122,8 +114,12 @@ enum DigitalOscillatorShape {
 #if NUM_BANKS >= 4
   OSC_SHAPE_SAM4,
 #endif
-
-  OSC_SHAPE_QUESTION_MARK_LAST
+  
+  OSC_SHAPE_FILTERED_NOISE,
+  OSC_SHAPE_TWIN_PEAKS_NOISE,
+  OSC_SHAPE_CLOCKED_NOISE,
+  OSC_SHAPE_GRANULAR_CLOUD,
+  OSC_SHAPE_PARTICLE_NOISE,
 };
 
 struct ResoSquareState {
@@ -357,11 +353,9 @@ class DigitalOscillator {
   void RenderGranularCloud(const uint8_t*, int16_t*, size_t);
   void RenderParticleNoise(const uint8_t*, int16_t*, size_t);
   
-  void RenderDigitalModulation(const uint8_t*, int16_t*, size_t);
   void RenderKick(const uint8_t*, int16_t*, size_t);
   void RenderSnare(const uint8_t*, int16_t*, size_t);
   void RenderCymbal(const uint8_t*, int16_t*, size_t);
-  void RenderQuestionMark(const uint8_t*, int16_t*, size_t);
   void RenderVocalist(const uint8_t*, int16_t*, size_t);
   void RenderStack(const uint8_t*, int16_t*, size_t);
   void RenderDiatonicChord(const uint8_t*, int16_t*, size_t);
