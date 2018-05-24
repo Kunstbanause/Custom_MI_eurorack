@@ -18,6 +18,8 @@ using namespace stmlib;
 
 const int kStackSize = 6;
 
+#define CALC_SINE(phase) Interpolate88(ws_sine_fold, (Interpolate824(wav_sine, phase) * gain >> 15) + 32768);
+
 inline void DigitalOscillator::renderChordSine(
   const uint8_t *sync, 
   int16_t *buffer, 
@@ -26,6 +28,7 @@ inline void DigitalOscillator::renderChordSine(
   uint8_t noteCount) {
   
   uint32_t phase_0, phase_1, phase_2, phase_3, phase_4, phase_5;
+  int16_t gain = 2048 + (parameter_[0] * 30720 >> 15);
 
   phase_0 = state_.stack.phase[0];
   phase_1 = state_.stack.phase[1];
@@ -44,19 +47,20 @@ inline void DigitalOscillator::renderChordSine(
     phase_4 += phase_increment[4];
     phase_5 += phase_increment[5];
 
-    sample = Interpolate824(wav_sine, phase_0) >> 2;
-    sample += Interpolate824(wav_sine, phase_1) >> 2;
-    sample += Interpolate824(wav_sine, phase_2) >> 2;
-    sample += Interpolate824(wav_sine, phase_3) >> 2;
+    sample = CALC_SINE(phase_0);
+
+    sample += CALC_SINE(phase_1);
+    sample += CALC_SINE(phase_2);
+    sample += CALC_SINE(phase_3);
 
     if (noteCount > 4) {
-      sample += Interpolate824(wav_sine, phase_4) >> 2;
+      sample += CALC_SINE(phase_4);
     }
-    if (noteCount > 5) {
-      sample += Interpolate824(wav_sine, phase_5) >> 2;
-    }
+    // if (noteCount > 5) {
+    //   sample += CALC_SINE(phase_5);
+    // }
 
-    sample = (sample >> 2) + (sample >> 5);
+    sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
     *buffer++ = sample;
     
@@ -67,21 +71,21 @@ inline void DigitalOscillator::renderChordSine(
     phase_4 += phase_increment[4];
     phase_5 += phase_increment[5];
 
-    sample = Interpolate824(wav_sine, phase_0) >> 2;
-    sample += Interpolate824(wav_sine, phase_1) >> 2;
-    sample += Interpolate824(wav_sine, phase_2) >> 2;
-    sample += Interpolate824(wav_sine, phase_3) >> 2;
+    sample = CALC_SINE(phase_0);
+
+    sample += CALC_SINE(phase_1);
+    sample += CALC_SINE(phase_2);
+    sample += CALC_SINE(phase_3);
 
     if (noteCount > 4) {
-      sample += Interpolate824(wav_sine, phase_4) >> 2;
+      sample += CALC_SINE(phase_4);
     }
-    if (noteCount > 5) {
-      sample += Interpolate824(wav_sine, phase_5) >> 2;
-    }
+    // if (noteCount > 5) {
+    //   sample += CALC_SINE(phase_5);
+    // }
 
-    sample = (sample >> 2) + (sample >> 5);
+    sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
-
     *buffer++ = sample;
 
     size -= 2;
@@ -171,7 +175,9 @@ inline void DigitalOscillator::renderChordSaw(
   state_.stack.phase[5] = phase_5;
 }
 
-#define CALC_TRIANGLE(x) (0x4000 + ((x & 0x80000000) ? ((1 << 15) - ((x >> 16) & 0xffff)) : ((x >> 16) - (1<<15))))
+#define CALC_TRIANGLE_RAW(x) (((x >> 16) << 1) ^ (x & 0x8000 ? 0xffff : 0x0000))
+
+#define CALC_TRIANGLE(x) Interpolate88(ws_tri_fold, (CALC_TRIANGLE_RAW(x) * gain >> 15) + 32768)
 
 inline void DigitalOscillator::renderChordTriangle(
   const uint8_t *sync, 
@@ -187,6 +193,8 @@ inline void DigitalOscillator::renderChordTriangle(
   phase_3 = state_.stack.phase[3];
   phase_4 = state_.stack.phase[4];
   phase_5 = state_.stack.phase[5];
+
+  int16_t gain = 2048 + (parameter_[0] * 30720 >> 15);
 
   while (size) {
     int32_t sample = 0;
@@ -210,7 +218,7 @@ inline void DigitalOscillator::renderChordTriangle(
       sample += CALC_TRIANGLE(phase_5);
     }
 
-    sample = (sample >> 2) + (sample >> 3);
+    sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
     *buffer++ = sample;
 
@@ -233,7 +241,7 @@ inline void DigitalOscillator::renderChordTriangle(
       sample += CALC_TRIANGLE(phase_5);
     }
 
-    sample = (sample >> 2) + (sample >> 3);
+    sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
     *buffer++ = sample;
 
