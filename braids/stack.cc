@@ -18,20 +18,6 @@ using namespace stmlib;
 
 const int kStackSize = 6;
 
-const uint8_t amplitudes[] = {
-  0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-  214,  171,   128,   86,   43,   43,
-  42,    85,   128,  170,  213,  255,
-  171,   86,     0,   85,  170,  255,
-  171,   86,     0,   85,  170,  255,
-    0,  255,     0,  255,    0,  255, 
-    0,    0,     0,  255,  255,    0, 
-    0,  255,   255,  255,    0,    0,
-  221,  127,    71,    8,  197,   19,
-   98,  137,    55,   70,  122,  153,
-   50,  203,    43,  198,
-};
-
 inline void DigitalOscillator::renderChordSine(
   const uint8_t *sync, 
   int16_t *buffer, 
@@ -442,7 +428,8 @@ inline void DigitalOscillator::renderChordWavetable(
 
 extern const uint16_t chords[17][3];
 
-inline void DigitalOscillator::renderChord(
+// without the attribute this gets build as-is AND inlined into RenderStack :/
+void DigitalOscillator::renderChord(
   const uint8_t *sync, 
   int16_t *buffer, 
   size_t size, 
@@ -512,24 +499,6 @@ inline void DigitalOscillator::renderChord(
   }
 }
 
-void DigitalOscillator::RenderStack(
-    const uint8_t* sync,
-    int16_t* buffer,
-    size_t size) {
-  
-  uint8_t span = 1 + (parameter_[1] >> 11);
-  uint8_t offsets[kStackSize];
-  uint8_t acc = 0;
-  uint8_t count = kStackSize-1;
-
-  for (uint8_t i = 0; i < count; i++) {
-    acc += span;
-    offsets[i] = acc;
-  }
-
-  renderChord(sync, buffer, size, offsets, kStackSize);
-}
-
 // number of notes, followed by offsets
 const uint8_t diatonic_chords[16][4] = {
   {1, 7, 0, 0}, // octave
@@ -580,6 +549,27 @@ void DigitalOscillator::RenderDiatonicChord(
   }
 
   renderChord(sync, buffer, size, offsets, len);
+}
+
+void DigitalOscillator::RenderStack(
+    const uint8_t* sync,
+    int16_t* buffer,
+    size_t size) {
+  
+  uint8_t span = 1 + (parameter_[1] >> 11);
+  uint8_t offsets[kStackSize];
+  uint8_t acc = 0;
+  uint8_t count = kStackSize-1;
+  uint8_t i = 0;
+
+  for (; i < count; i++) {
+    acc += span;
+    offsets[i] = acc;
+  }
+
+  // don't pass in kStackSize or gcc will render a second, optimized version of renderChord that
+  // knows noteCount is static.
+  renderChord(sync, buffer, size, offsets, i);
 }
 
 }
