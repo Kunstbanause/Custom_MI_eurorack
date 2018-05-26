@@ -18,7 +18,7 @@ using namespace stmlib;
 
 const int kStackSize = 6;
 
-#define CALC_SINE(phase) Interpolate88(ws_sine_fold, (Interpolate824(wav_sine, phase) * gain >> 15) + 32768);
+#define CALC_SINE(phase) Interpolate824(wav_sine, phase);
 
 inline void DigitalOscillator::renderChordSine(
   const uint8_t *sync, 
@@ -28,7 +28,8 @@ inline void DigitalOscillator::renderChordSine(
   uint8_t noteCount) {
   
   uint32_t phase_0, phase_1, phase_2, phase_3, phase_4, phase_5;
-  int16_t gain = 2048 + (parameter_[0] * 30720 >> 15);
+  int32_t fuzz_amount = (parameter_[0] << 2);
+  if (fuzz_amount > 0xffff) { fuzz_amount = 0xffff; }
 
   phase_0 = state_.stack.phase[0];
   phase_1 = state_.stack.phase[1];
@@ -56,39 +57,18 @@ inline void DigitalOscillator::renderChordSine(
     if (noteCount > 4) {
       sample += CALC_SINE(phase_4);
     }
-    // if (noteCount > 5) {
-    //   sample += CALC_SINE(phase_5);
-    // }
-
-    sample = (sample >> 3) + (sample >> 5);
-    CLIP(sample)
-    *buffer++ = sample;
-    
-    phase_0 += phase_increment[0];
-    phase_1 += phase_increment[1];
-    phase_2 += phase_increment[2];
-    phase_3 += phase_increment[3];
-    phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
-
-    sample = CALC_SINE(phase_0);
-
-    sample += CALC_SINE(phase_1);
-    sample += CALC_SINE(phase_2);
-    sample += CALC_SINE(phase_3);
-
-    if (noteCount > 4) {
-      sample += CALC_SINE(phase_4);
+    if (noteCount > 5) {
+      sample += CALC_SINE(phase_5);
     }
-    // if (noteCount > 5) {
-    //   sample += CALC_SINE(phase_5);
-    // }
 
     sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
-    *buffer++ = sample;
 
-    size -= 2;
+    int32_t shifted_sample = sample + 32768;
+    int16_t fuzzed = Interpolate88(ws_violent_overdrive, shifted_sample);
+    *buffer++ = Mix(sample, fuzzed, fuzz_amount);
+
+    size -= 1;
   }
   
   state_.stack.phase[0] = phase_0;
@@ -175,9 +155,8 @@ inline void DigitalOscillator::renderChordSaw(
   state_.stack.phase[5] = phase_5;
 }
 
-#define CALC_TRIANGLE_RAW(x) (((x >> 16) << 1) ^ (x & 0x8000 ? 0xffff : 0x0000))
-
-#define CALC_TRIANGLE(x) Interpolate88(ws_tri_fold, (CALC_TRIANGLE_RAW(x) * gain >> 15) + 32768)
+#define CALC_TRIANGLE(x) (0x4000 + ((x & 0x80000000) ? ((1 << 15) - ((x >> 16) & 0xffff)) : ((x >> 16) - (1<<15))))
+//#define CALC_TRIANGLE(x) Interpolate88(ws_tri_fold, (CALC_TRIANGLE_RAW(x) * gain >> 15) + 32768)
 
 inline void DigitalOscillator::renderChordTriangle(
   const uint8_t *sync, 
@@ -194,7 +173,7 @@ inline void DigitalOscillator::renderChordTriangle(
   phase_4 = state_.stack.phase[4];
   phase_5 = state_.stack.phase[5];
 
-  int16_t gain = 2048 + (parameter_[0] * 30720 >> 15);
+  int32_t fuzz_amount = (parameter_[0] << 1);
 
   while (size) {
     int32_t sample = 0;
@@ -218,34 +197,15 @@ inline void DigitalOscillator::renderChordTriangle(
       sample += CALC_TRIANGLE(phase_5);
     }
 
-    sample = (sample >> 3) + (sample >> 5);
+    sample = (sample >> 2) + (sample >> 4);
     CLIP(sample)
-    *buffer++ = sample;
 
-    phase_0 += phase_increment[0];
-    phase_1 += phase_increment[1];
-    phase_2 += phase_increment[2];
-    phase_3 += phase_increment[3];
-    phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
+    int32_t shifted_sample = sample + 32768;
+    int16_t fuzzed = Interpolate88(ws_violent_overdrive, shifted_sample);
+    *buffer++ = Mix(sample, fuzzed, fuzz_amount);
+    //*buffer++ = sample;
 
-    sample = CALC_TRIANGLE(phase_0);
-    sample += CALC_TRIANGLE(phase_1);
-    sample += CALC_TRIANGLE(phase_2);
-    sample += CALC_TRIANGLE(phase_3);
-
-    if (noteCount > 4) {
-      sample += CALC_TRIANGLE(phase_4);
-    }
-    if (noteCount > 5) {
-      sample += CALC_TRIANGLE(phase_5);
-    }
-
-    sample = (sample >> 3) + (sample >> 5);
-    CLIP(sample)
-    *buffer++ = sample;
-
-    size -= 2;
+    size -= 1;
   }
   
   state_.stack.phase[0] = phase_0;
@@ -397,7 +357,7 @@ inline void DigitalOscillator::renderChordWavetable(
       sample += Crossfade(wave_1, wave_2, phase_5 >> 1, wave_xfade);
     }
 
-    sample = (sample >> 2) + (sample >> 6);
+    sample = (sample >> 2);// + (sample >> 6);
     CLIP(sample)
     *buffer++ = sample;
     
@@ -419,7 +379,7 @@ inline void DigitalOscillator::renderChordWavetable(
       sample += Crossfade(wave_1, wave_2, phase_5 >> 1, wave_xfade);
     }
 
-    sample = (sample >> 2) + (sample >> 6);
+    sample = (sample >> 2);// + (sample >> 6);
     CLIP(sample)
     *buffer++ = sample;
 
