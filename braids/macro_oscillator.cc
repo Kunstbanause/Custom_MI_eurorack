@@ -405,6 +405,7 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
+  &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderSawComb,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,

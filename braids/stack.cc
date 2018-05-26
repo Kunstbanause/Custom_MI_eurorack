@@ -27,7 +27,7 @@ inline void DigitalOscillator::renderChordSine(
   uint32_t *phase_increment, 
   uint8_t noteCount) {
   
-  uint32_t phase_0, phase_1, phase_2, phase_3, phase_4, phase_5;
+  uint32_t phase_0, phase_1, phase_2, phase_3, phase_4;
   int16_t gain = 2048 + (parameter_[0] * 30720 >> 15);
 
   phase_0 = state_.stack.phase[0];
@@ -35,7 +35,6 @@ inline void DigitalOscillator::renderChordSine(
   phase_2 = state_.stack.phase[2];
   phase_3 = state_.stack.phase[3];
   phase_4 = state_.stack.phase[4];
-  phase_5 = state_.stack.phase[5];
 
   while (size) {
     int32_t sample = 0;
@@ -45,7 +44,6 @@ inline void DigitalOscillator::renderChordSine(
     phase_2 += phase_increment[2];
     phase_3 += phase_increment[3];
     phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
 
     sample = CALC_SINE(phase_0);
 
@@ -56,9 +54,6 @@ inline void DigitalOscillator::renderChordSine(
     if (noteCount > 4) {
       sample += CALC_SINE(phase_4);
     }
-    // if (noteCount > 5) {
-    //   sample += CALC_SINE(phase_5);
-    // }
 
     sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
@@ -69,7 +64,6 @@ inline void DigitalOscillator::renderChordSine(
     phase_2 += phase_increment[2];
     phase_3 += phase_increment[3];
     phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
 
     sample = CALC_SINE(phase_0);
 
@@ -80,9 +74,6 @@ inline void DigitalOscillator::renderChordSine(
     if (noteCount > 4) {
       sample += CALC_SINE(phase_4);
     }
-    // if (noteCount > 5) {
-    //   sample += CALC_SINE(phase_5);
-    // }
 
     sample = (sample >> 3) + (sample >> 5);
     CLIP(sample)
@@ -96,7 +87,6 @@ inline void DigitalOscillator::renderChordSine(
   state_.stack.phase[2] = phase_2;
   state_.stack.phase[3] = phase_3;
   state_.stack.phase[4] = phase_4;
-  state_.stack.phase[5] = phase_5;
 }
 
 inline void DigitalOscillator::renderChordSaw(
@@ -372,14 +362,13 @@ inline void DigitalOscillator::renderChordWavetable(
   const uint8_t* wave_1 = wt_waves + mini_wave_line[parameter_[0] >> 10] * 129;
   const uint8_t* wave_2 = wt_waves + mini_wave_line[(parameter_[0] >> 10) + 1] * 129;
   uint16_t wave_xfade = parameter_[0] << 6;
-  uint32_t phase_0, phase_1, phase_2, phase_3, phase_4, phase_5;
+  uint32_t phase_0, phase_1, phase_2, phase_3, phase_4;
 
   phase_0 = state_.stack.phase[0];
   phase_1 = state_.stack.phase[1];
   phase_2 = state_.stack.phase[2];
   phase_3 = state_.stack.phase[3];
   phase_4 = state_.stack.phase[4];
-  phase_5 = state_.stack.phase[5];
 
   while (size) {
     int32_t sample = 0;
@@ -389,7 +378,6 @@ inline void DigitalOscillator::renderChordWavetable(
     phase_2 += phase_increment[2];
     phase_3 += phase_increment[3];
     phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
 
     sample = Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
     sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
@@ -398,11 +386,8 @@ inline void DigitalOscillator::renderChordWavetable(
     if (noteCount > 4) {
       sample += Crossfade(wave_1, wave_2, phase_4 >> 1, wave_xfade);
     }
-    if (noteCount > 5) {
-      sample += Crossfade(wave_1, wave_2, phase_5 >> 1, wave_xfade);
-    }
 
-    sample = (sample >> 2) + (sample >> 6);
+    sample = (sample >> 2) + (sample >> 4);
     CLIP(sample)
     *buffer++ = sample;
     
@@ -411,7 +396,6 @@ inline void DigitalOscillator::renderChordWavetable(
     phase_2 += phase_increment[2];
     phase_3 += phase_increment[3];
     phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
 
     sample = Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
     sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
@@ -420,11 +404,8 @@ inline void DigitalOscillator::renderChordWavetable(
     if (noteCount > 4) {
       sample += Crossfade(wave_1, wave_2, phase_4 >> 1, wave_xfade);
     }
-    if (noteCount > 5) {
-      sample += Crossfade(wave_1, wave_2, phase_5 >> 1, wave_xfade);
-    }
 
-    sample = (sample >> 2) + (sample >> 6);
+    sample = (sample >> 2) + (sample >> 4);
     CLIP(sample)
     *buffer++ = sample;
 
@@ -436,7 +417,6 @@ inline void DigitalOscillator::renderChordWavetable(
   state_.stack.phase[2] = phase_2;
   state_.stack.phase[3] = phase_3;
   state_.stack.phase[4] = phase_4;
-  state_.stack.phase[5] = phase_5;
 }
 
 extern const uint16_t chords[17][3];
@@ -532,8 +512,8 @@ const uint8_t diatonic_chords[16][4] = {
   {1, 7, 0, 0}, // oct sus4
   {1, 6, 0, 0}, // 7th sus4
   {2, 6, 8, 0}, // 9th sus4
-  {3, 6, 8, 10}, // 11th sus4
   {2, 6, 8, 0}, // 9th sus2
+  {3, 8, 10, 6}, // 11th sus4
 };
 
 void DigitalOscillator::RenderDiatonicChord(
