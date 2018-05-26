@@ -175,9 +175,14 @@ inline void DigitalOscillator::renderChordSaw(
   state_.stack.phase[5] = phase_5;
 }
 
-#define CALC_TRIANGLE_RAW(x) (((x >> 16) << 1) ^ (x & 0x8000 ? 0xffff : 0x0000))
+// #define CALC_TRIANGLE_RAW(x) ((int16_t) ((((x >> 16) << 1) ^ (x & 0x80000000 ? 0xffff : 0x0000))) + 32768)
+#define CALC_TRIANGLE(x) Interpolate88(ws_tri_fold, (calc_triangle_raw(x) * gain >> 15) + 32768)
 
-#define CALC_TRIANGLE(x) Interpolate88(ws_tri_fold, (CALC_TRIANGLE_RAW(x) * gain >> 15) + 32768)
+inline int16_t calc_triangle_raw(uint32_t phase) {
+  uint16_t phase_16 = phase >> 16;
+  int16_t triangle = (phase_16 << 1) ^ (phase_16 & 0x8000 ? 0xffff : 0x0000);
+  return triangle + 32768;
+}
 
 inline void DigitalOscillator::renderChordTriangle(
   const uint8_t *sync, 
@@ -477,18 +482,23 @@ void DigitalOscillator::renderChord(
       phase_increment[i+1] = ComputePhaseIncrement(pitch_ + detune);
     }
   } else {
+    size_t i;
     if (quantizer.enabled_) {
       uint16_t index = quantizer.index;
       fm = pitch_ - quantizer.codebook_[quantizer.index];
 
       phase_increment[0] = phase_increment_;
-      for (size_t i = 1; i < noteCount; i++) {
-        index = (index + noteOffset[i-1]) % 128;
+      for (i = 1; i < noteCount; i++) {
+        index = (index + noteOffset[i-1]);
+        if (index > 128) {
+          noteCount = i;
+          break;
+        }
         phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(quantizer.codebook_[index] + fm);
       }
     } else {
       phase_increment[0] = phase_increment_;
-      for (size_t i = 1; i < noteCount; i++) {
+      for (i = 1; i < noteCount; i++) {
         phase_increment[i] = DigitalOscillator::ComputePhaseIncrement(pitch_ + (noteOffset[i-1]<<7));
       }
     }
