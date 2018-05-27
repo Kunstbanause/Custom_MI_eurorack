@@ -98,71 +98,91 @@ inline void DigitalOscillator::renderChordSaw(
 
   uint32_t phase_0, phase_1, phase_2, phase_3, phase_4, phase_5;
 
-  phase_0 = state_.stack.phase[0];
-  phase_1 = state_.stack.phase[1];
-  phase_2 = state_.stack.phase[2];
-  phase_3 = state_.stack.phase[3];
-  phase_4 = state_.stack.phase[4];
-  phase_5 = state_.stack.phase[5];
+  uint32_t detune = 0;
 
-  while (size) {
-    int32_t sample = 0;
-    
-    phase_0 += phase_increment[0];
-    phase_1 += phase_increment[1];
-    phase_2 += phase_increment[2];
-    phase_3 += phase_increment[3];
-    phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
+  for (int i = 0; i < 2; i++) {
+    phase_0 = state_.stack.phase[(i*6)+0];
+    phase_1 = state_.stack.phase[(i*6)+1];
+    phase_2 = state_.stack.phase[(i*6)+2];
+    phase_3 = state_.stack.phase[(i*6)+3];
+    phase_4 = state_.stack.phase[(i*6)+4];
+    phase_5 = state_.stack.phase[(i*6)+5];
 
-    sample = (1 << 15) - (phase_0 >> 16);
-    sample += (1 << 15) - (phase_1 >> 16);
-    sample += (1 << 15) - (phase_2 >> 16);
-    sample += (1 << 15) - (phase_3 >> 16);
-
-    if (noteCount > 4) {
-      sample += (1 << 15) - (phase_4 >> 16);
-    }
-    if (noteCount > 5) {
-      sample += (1 << 15) - (phase_5 >> 16);
+    if (i == 1) {
+      detune = parameter_[0]<<3;
     }
 
-    sample = (sample >> 2) + (sample >> 5);
-    CLIP(sample)
-    *buffer++ = sample;
-    
-    phase_0 += phase_increment[0];
-    phase_1 += phase_increment[1];
-    phase_2 += phase_increment[2];
-    phase_3 += phase_increment[3];
-    phase_4 += phase_increment[4];
-    phase_5 += phase_increment[5];
+    int16_t *b = buffer;
+    size_t s = size;
 
-    sample = (1 << 15) - (phase_0 >> 16);
-    sample += (1 << 15) - (phase_1 >> 16);
-    sample += (1 << 15) - (phase_2 >> 16);
-    sample += (1 << 15) - (phase_3 >> 16);
+    while (s) {
+      int32_t sample = 0;
+      
+      phase_0 += phase_increment[0] + detune;
+      phase_1 += phase_increment[1] - detune;
+      phase_2 += phase_increment[2] + detune;
+      phase_3 += phase_increment[3] - detune;
+      phase_4 += phase_increment[4] + detune;
+      phase_5 += phase_increment[5] - detune;
 
-    if (noteCount > 4) {
-      sample += (1 << 15) - (phase_4 >> 16);
+      sample += (1 << 15) - (phase_0 >> 16);
+      sample += (1 << 15) - (phase_1 >> 16);
+      sample += (1 << 15) - (phase_2 >> 16);
+      sample += (1 << 15) - (phase_3 >> 16);
+
+      if (noteCount > 4) {
+        sample += (1 << 15) - (phase_4 >> 16);
+      }
+      if (noteCount > 5) {
+        sample += (1 << 15) - (phase_5 >> 16);
+      }
+
+      sample = (sample >> 2) + (sample >> 5);
+      CLIP(sample)
+      if (i == 0) {
+        *b++ = sample >> 1;
+      } else {
+        *b += sample >> 1;
+        b++;
+      }
+      
+      phase_0 += phase_increment[0] + detune;
+      phase_1 += phase_increment[1] - detune;
+      phase_2 += phase_increment[2] + detune;
+      phase_3 += phase_increment[3] - detune;
+      phase_4 += phase_increment[4] + detune;
+      phase_5 += phase_increment[5] - detune;
+
+      sample = (1 << 15) - (phase_0 >> 16);
+      sample += (1 << 15) - (phase_1 >> 16);
+      sample += (1 << 15) - (phase_2 >> 16);
+      sample += (1 << 15) - (phase_3 >> 16);
+
+      if (noteCount > 4) {
+        sample += (1 << 15) - (phase_4 >> 16);
+      }
+      if (noteCount > 5) {
+        sample += (1 << 15) - (phase_5 >> 16);
+      }
+
+      sample = (sample >> 2) + (sample >> 5);
+      CLIP(sample)
+      if (i == 0) {
+        *b++ = sample >> 1;
+      } else {
+        *b += sample >> 1;
+        b++;
+      }
+
+      s -= 2;
     }
-    if (noteCount > 5) {
-      sample += (1 << 15) - (phase_5 >> 16);
-    }
-
-    sample = (sample >> 2) + (sample >> 5);
-    CLIP(sample)
-    *buffer++ = sample;
-
-    size -= 2;
+    state_.stack.phase[(i*6)+0] = phase_0;
+    state_.stack.phase[(i*6)+1] = phase_1;
+    state_.stack.phase[(i*6)+2] = phase_2;
+    state_.stack.phase[(i*6)+3] = phase_3;
+    state_.stack.phase[(i*6)+4] = phase_4;
+    state_.stack.phase[(i*6)+5] = phase_5;
   }
-  
-  state_.stack.phase[0] = phase_0;
-  state_.stack.phase[1] = phase_1;
-  state_.stack.phase[2] = phase_2;
-  state_.stack.phase[3] = phase_3;
-  state_.stack.phase[4] = phase_4;
-  state_.stack.phase[5] = phase_5;
 }
 
 // #define CALC_TRIANGLE_RAW(x) ((int16_t) ((((x >> 16) << 1) ^ (x & 0x80000000 ? 0xffff : 0x0000))) + 32768)

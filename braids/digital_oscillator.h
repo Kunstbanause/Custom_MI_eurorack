@@ -239,8 +239,7 @@ struct HatState {
 };
 
 struct StackState {
-  uint32_t phase[6];
-  int32_t amplitude[6];
+  uint32_t phase[12];
   int16_t previous_sample;
 };
 
@@ -270,6 +269,7 @@ class DigitalOscillator {
   typedef void (DigitalOscillator::*RenderFn)(const uint8_t*, int16_t*, size_t);
 
   DigitalOscillator() { }
+
   ~DigitalOscillator() { }
   
   inline void Init() {
@@ -281,7 +281,6 @@ class DigitalOscillator {
     svf_[0].Init();
     svf_[1].Init();
     svf_[2].Init();
-    vocalist_.Init(&delay_lines_.vocalistState);
 
     phase_ = 0;
     strike_ = true;
@@ -314,7 +313,6 @@ class DigitalOscillator {
   
   inline void Strike() {
     strike_ = true;
-    vocalist_.Strike();
   }
 
   void Render(const uint8_t* sync, int16_t* buffer, size_t size);
