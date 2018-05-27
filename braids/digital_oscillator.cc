@@ -2227,7 +2227,14 @@ void DigitalOscillator::RenderVocalist(
 
   if (init_) {
     memset(&delay_lines_.vocalistState, 0, sizeof(delay_lines_.vocalistState));
+    vocalist_.Init(&delay_lines_.vocalistState);
+
     init_ = false;
+  }
+
+  if (strike_) {
+    vocalist_.Strike();
+    strike_ = false;
   }
 
   vocalist_.set_shape(shape_ - (MACRO_OSC_SHAPE_SAM1 - MACRO_OSC_SHAPE_TRIPLE_RING_MOD));
@@ -2288,24 +2295,24 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderWavetables,
   &DigitalOscillator::RenderWaveMap,
   &DigitalOscillator::RenderWaveLine,
+  #if NUM_BANKS >= 1
+    &DigitalOscillator::RenderVocalist,
+  #endif
+  #if NUM_BANKS >= 2
+    &DigitalOscillator::RenderVocalist,
+  #endif
+  #if NUM_BANKS >= 3
+    &DigitalOscillator::RenderVocalist,
+  #endif
+  #if NUM_BANKS >= 4
+    &DigitalOscillator::RenderVocalist,
+  #endif
   &DigitalOscillator::RenderFilteredNoise,
   &DigitalOscillator::RenderTwinPeaksNoise,
   &DigitalOscillator::RenderClockedNoise,
   &DigitalOscillator::RenderGranularCloud,
   &DigitalOscillator::RenderParticleNoise,
 
-#if NUM_BANKS >= 1
-  &DigitalOscillator::RenderVocalist,
-#endif
-#if NUM_BANKS >= 2
-  &DigitalOscillator::RenderVocalist,
-#endif
-#if NUM_BANKS >= 3
-  &DigitalOscillator::RenderVocalist,
-#endif
-#if NUM_BANKS >= 4
-  &DigitalOscillator::RenderVocalist,
-#endif
   // &DigitalOscillator::RenderYourAlgo,
 };
 

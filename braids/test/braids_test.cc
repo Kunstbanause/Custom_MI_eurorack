@@ -40,7 +40,7 @@ void TestAudioRendering() {
   quantizer.enabled_ = false;
 
   osc.Init();
-  osc.set_shape(MACRO_OSC_SHAPE_STACK_SINE);
+  osc.set_shape(MACRO_OSC_SHAPE_SAM1);
 
   for (uint32_t i = 0; i < kSampleRate * 10 / kAudioBlockSize; ++i) {
     // if ((i % 2000) == 0) {
@@ -53,7 +53,7 @@ void TestAudioRendering() {
     uint16_t ramp = i * 150;
     tri = tri > 32767 ? 65535 - tri : tri;
     tri2 = tri2 > 32767 ? 65535 - tri2 : tri2;
-    osc.set_parameters(tri2<<4, tri);
+    osc.set_parameters(tri2<<4, 20000);
     memset(sync_buffer, 0, sizeof(sync_buffer));
     //sync_buffer[0] = (i % 32) == 0 ? 1 : 0;
     osc.set_pitch(((40)<< 7));
