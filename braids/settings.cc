@@ -189,7 +189,6 @@ const char* const algo_values[] = {
     "WTBL",
     "WMAP",
     "WLIN",
-    "WTx4",
 #if NUM_BANKS >= 1
     "SAM1",
 #endif

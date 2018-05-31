@@ -395,13 +395,13 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
+  &MacroOscillator::RenderDigital, // Triple Ring Mod
+  &MacroOscillator::RenderDigital, // Diatonic Chord 1-5
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
-  &MacroOscillator::RenderDigital,
+  &MacroOscillator::RenderDigital, // Stacks 1-5
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,

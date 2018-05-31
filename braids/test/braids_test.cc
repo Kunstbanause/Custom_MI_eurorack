@@ -40,7 +40,7 @@ void TestAudioRendering() {
   quantizer.enabled_ = false;
 
   osc.Init();
-  osc.set_shape(MACRO_OSC_SHAPE_SAM1);
+  osc.set_shape(MACRO_OSC_SHAPE_SAM2);
 
   for (uint32_t i = 0; i < kSampleRate * 10 / kAudioBlockSize; ++i) {
     // if ((i % 2000) == 0) {
