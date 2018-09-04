@@ -47,8 +47,13 @@ void Adc::Init() {
   gpio_init.GPIO_PuPd = GPIO_PuPd_NOPULL;
   gpio_init.GPIO_Mode = GPIO_Mode_AN;
   GPIO_Init(GPIOA, &gpio_init);
+
+  gpio_init.GPIO_Pin = GPIO_Pin_1;
+  gpio_init.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  gpio_init.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_Init(GPIOB, &gpio_init);
   
-  gpio_init.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+  gpio_init.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3;
   gpio_init.GPIO_PuPd = GPIO_PuPd_NOPULL;
   gpio_init.GPIO_Mode = GPIO_Mode_AN;
   GPIO_Init(GPIOC, &gpio_init);
@@ -88,6 +93,7 @@ void Adc::Init() {
   ADC_Init(ADC1, &adc_init);
   
   // 168M / 2 / 8 / (10 x (480 + 20)) = 2.1kHz.
+  // TODO - possibly reduce sample time since above math won't work any more
   ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 1, ADC_SampleTime_480Cycles);
   ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 2, ADC_SampleTime_480Cycles); 
   ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_480Cycles); 
@@ -96,8 +102,14 @@ void Adc::Init() {
   ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 6, ADC_SampleTime_480Cycles); 
   ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 7, ADC_SampleTime_480Cycles);
   ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 8, ADC_SampleTime_480Cycles); 
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 9, ADC_SampleTime_480Cycles);
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 10, ADC_SampleTime_480Cycles); 
+  /* added for uBurst expanded */
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 9, ADC_SampleTime_480Cycles); 
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 10, ADC_SampleTime_480Cycles); 
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_9, 11, ADC_SampleTime_480Cycles); 
+  /* end for uBurst expanded */
+
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 12, ADC_SampleTime_480Cycles);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 13, ADC_SampleTime_480Cycles); 
   
   ADC_DMARequestAfterLastTransferCmd(ADC1, ENABLE);
   ADC_Cmd(ADC1, ENABLE);
