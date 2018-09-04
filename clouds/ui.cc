@@ -57,7 +57,6 @@ void Ui::Init(
   
   const State& state = settings_->state();
   
-  cv_scaler_->MatchKnobPosition();
   processor_->set_quality(state.quality & 3);
   processor_->set_playback_mode(
       static_cast<PlaybackMode>(state.playback_mode & 3));
