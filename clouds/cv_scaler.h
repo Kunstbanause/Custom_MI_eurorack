@@ -38,14 +38,6 @@
 
 namespace clouds {
 
-enum BlendParameter {
-  BLEND_PARAMETER_DRY_WET,
-  BLEND_PARAMETER_STEREO_SPREAD,
-  BLEND_PARAMETER_FEEDBACK,
-  BLEND_PARAMETER_REVERB,
-  BLEND_PARAMETER_LAST
-};
-
 struct CvTransformation {
   bool flip;
   bool remove_offset;
@@ -91,38 +83,8 @@ class CvScaler {
   inline bool gate(size_t index) const {
     return index == 0 ? gate_input_.freeze() : gate_input_.trigger();
   }
-  
-  inline void set_blend_parameter(BlendParameter parameter) {
-    blend_parameter_ = parameter;
-    blend_knob_origin_ = previous_blend_knob_value_;
-  }
-  
-  inline void MatchKnobPosition() {
-    previous_blend_knob_value_ = -1.0f;
-  }
-  
-  inline BlendParameter blend_parameter() const {
-    return blend_parameter_;
-  }
-  
-  inline float blend_value(BlendParameter parameter) const {
-    return blend_[parameter];
-  }
-  
-  inline void set_blend_value(BlendParameter parameter, float value) {
-    blend_[parameter] = value;
-  }
-  
-  inline bool blend_knob_touched() const {
-    return blend_knob_touched_;
-  }
-  
-  void UnlockBlendKnob() {
-    previous_blend_knob_value_ = -1.0f;
-  }
 
  private:
-  void UpdateBlendParameters(float knob, float cv);
   static const int kAdcLatency = 5;
   
   Adc adc_;
@@ -133,16 +95,6 @@ class CvScaler {
   static CvTransformation transformations_[ADC_CHANNEL_LAST];
   
   float note_;
-  
-  BlendParameter blend_parameter_;
-  float blend_[BLEND_PARAMETER_LAST];
-  float blend_mod_[BLEND_PARAMETER_LAST];
-  float previous_blend_knob_value_;
-
-  float blend_knob_origin_;
-  float blend_knob_quantized_;
-  bool blend_knob_touched_;
-
   float cv_c1_;
   
   bool previous_trigger_[kAdcLatency];
