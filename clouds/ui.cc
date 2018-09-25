@@ -124,6 +124,13 @@ void Ui::PaintLeds() {
     case UI_MODE_VU_METER:
       leds_.PaintBar(lut_db[meter_->peak() >> 7]);
       break;
+
+    case UI_MODE_BLEND_METER:
+      leds_.set_intensity(0, cv_scaler_->previous_reverb * 255.0f);
+      leds_.set_intensity(1, cv_scaler_->previous_feedback * 255.0f);
+      leds_.set_intensity(2, cv_scaler_->previous_stereo * 255.0f);
+      leds_.set_intensity(3, cv_scaler_->previous_dry_wet * 255.0f);
+      break;
     
     case UI_MODE_QUALITY:
       leds_.set_status(processor_->quality(), 255, 0);
@@ -218,14 +225,16 @@ void Ui::OnSwitchReleased(const Event& e) {
       break;
 
     case SWITCH_MODE:
-      if (e.data >= kLongPressDuration) {
+      if (e.data >= kVeryLongPressDuration) {
+        mode_ = UI_MODE_PLAYBACK_MODE;
+      } else if (e.data >= kLongPressDuration) {
         if (mode_ == UI_MODE_QUALITY) {
           mode_ = UI_MODE_VU_METER;
         } else {
           mode_ = UI_MODE_QUALITY;
         }
       } else if (mode_ == UI_MODE_VU_METER) {
-        mode_ = UI_MODE_PLAYBACK_MODE;
+        mode_ = UI_MODE_BLEND_METER;
       } else if (mode_ == UI_MODE_QUALITY) {
         processor_->set_quality((processor_->quality() + 1) & 3);
         SaveState();
