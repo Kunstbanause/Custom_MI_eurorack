@@ -86,6 +86,9 @@ class Ui {
   Switch switch_;
   uint32_t press_time_;
   UiMode mode_;
+  bool live_mode_high_;
+  bool live_mode_low_;
+  uint8_t last_live_mode_;
   
   bool gate_;
   

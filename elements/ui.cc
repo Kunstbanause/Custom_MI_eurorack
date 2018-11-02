@@ -57,6 +57,9 @@ void Ui::Poll() {
   if (switch_.just_pressed()) {
     queue_.AddEvent(CONTROL_SWITCH, 0, 0);
     press_time_ = system_clock.milliseconds();
+    live_mode_high_ = false;
+    live_mode_low_ = false;
+    last_live_mode_ = 255;
   }
   
   if (switch_.pressed() && \
@@ -72,6 +75,24 @@ void Ui::Poll() {
         queue_.AddEvent(CONTROL_SWITCH, 3, 0);
       }
       press_time_ = 0;
+    }
+  }
+
+  if (switch_.pressed()) {
+    if (cv_scaler_->strike_low()) {
+      live_mode_low_ = true;
+    }
+
+    if (cv_scaler_->strike_high()) {
+      live_mode_high_ = true;
+    }
+  }
+
+  if (live_mode_high_ && live_mode_low_) {
+    uint8_t mode = cv_scaler_->live_mode();
+    if (mode != last_live_mode_) {
+      queue_.AddEvent(CONTROL_SWITCH, 4, mode);
+      last_live_mode_ = mode;
     }
   }
   
@@ -166,7 +187,16 @@ void Ui::OnSwitchPressed(const Event& e) {
       gate_ = false;
       mode_ = UI_MODE_DISPLAY_MODEL;
       break;
-    
+
+    case 4:
+      part_->set_easter_egg(e.data == 4);
+      part_->set_resonator_model(ResonatorModel(e.data % 3));
+      cv_scaler_->set_boot_in_easter_egg_mode(part_->easter_egg());
+      cv_scaler_->set_resonator_model(part_->resonator_model());
+      cv_scaler_->SaveCalibration();
+      gate_ = false;
+      mode_ = UI_MODE_DISPLAY_MODEL;
+
     default:
       break;
   }

@@ -86,6 +86,26 @@ class CvScaler {
       pot_lp_[POT_EXCITER_BOW_TIMBRE] < 0.2f &&
       pot_lp_[POT_EXCITER_STRIKE_TIMBRE] < 0.2f;
   }
+
+  bool strike_low() {
+    return pot_lp_[POT_EXCITER_STRIKE_META] < -3.0f;
+  }
+
+  bool strike_high() {
+    return pot_lp_[POT_EXCITER_STRIKE_META] > 3.0f;
+  }
+
+  uint8_t live_mode() {
+    if (pot_lp_[POT_EXCITER_STRIKE_META] < -1.5f) {
+      return 0;
+    } else if (pot_lp_[POT_EXCITER_STRIKE_META] < 0.0f) {
+      return 1;
+    } else if (pot_lp_[POT_EXCITER_STRIKE_META] < 1.5f) {
+      return 2;
+    } else {
+      return 3;
+    }
+  }
   
   bool resonator_high() {
     return pot_lp_[POT_RESONATOR_GEOMETRY_ATTENUVERTER] > 3.0f &&
