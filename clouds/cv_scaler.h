@@ -84,6 +84,11 @@ class CvScaler {
     return index == 0 ? gate_input_.freeze() : gate_input_.trigger();
   }
 
+  float previous_dry_wet;
+  float previous_reverb;
+  float previous_feedback;
+  float previous_stereo;
+
  private:
   static const int kAdcLatency = 5;
   

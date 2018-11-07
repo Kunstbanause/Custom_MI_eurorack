@@ -57,9 +57,9 @@ CvTransformation CvScaler::transformations_[ADC_CHANNEL_LAST] = {
   { false, false, 0.05f },
   // ADC_WET_CV,
   { false, true, 0.2f },
-  //ADC_STEREO_POTENTIOMETER_CV,
-  { true, false, 0.01f },
   //ADC_FEEDBACK_POTENTIOMETER_CV,
+  { true, false, 0.01f },
+  //ADC_STEREO_POTENTIOMETER_CV,
   { true, false, 0.01f },
   //ADC_REVERB_POTENTIOMETER_CV,
   { true, false, 0.01f },
@@ -117,18 +117,22 @@ void CvScaler::Read(Parameters* parameters) {
   parameters->dry_wet = smoothed_adc_value_[ADC_WET_POTENTIOMETER];
   parameters->dry_wet -= smoothed_adc_value_[ADC_WET_CV];
   CONSTRAIN(parameters->dry_wet, 0.0f, 1.0f);
+  previous_dry_wet = parameters->dry_wet;
 
   float reverb = smoothed_adc_value_[ADC_REVERB_POTENTIOMETER_CV];
   CONSTRAIN(reverb, 0.0f, 1.0f);
   parameters->reverb = reverb;
+  previous_reverb = reverb;
 
   float feedback = smoothed_adc_value_[ADC_FEEDBACK_POTENTIOMETER_CV];
   CONSTRAIN(feedback, 0.0f, 1.0f);
   parameters->feedback = feedback;
+  previous_feedback = feedback;
 
   float stereo = smoothed_adc_value_[ADC_STEREO_POTENTIOMETER_CV];
   CONSTRAIN(stereo, 0.0f, 1.0f);
   parameters->feedback = stereo;
+  previous_stereo = stereo;
   
   parameters->pitch = stmlib::Interpolate(
       lut_quantized_pitch,

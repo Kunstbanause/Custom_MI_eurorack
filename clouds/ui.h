@@ -40,6 +40,7 @@ namespace clouds {
 
 enum UiMode {
   UI_MODE_VU_METER,
+  UI_MODE_BLEND_METER,
   UI_MODE_QUALITY,
   UI_MODE_PLAYBACK_MODE,
   UI_MODE_LOAD,
