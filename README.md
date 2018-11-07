@@ -1,6 +1,6 @@
 Home for a few alternate firmwares for Mutable Instruments modules.
 
-[Braids Renaissance](https://burns.ca/eurorack.html).
+[Braids Renaissance](https://burns.ca/eurorack.html)
 
 [uClouds Monsoon - Stock Firmware](https://github.com/boourns/eurorack-renaissance/releases/tag/monsoon_stock_v1.0)
 
