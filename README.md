@@ -2,13 +2,11 @@ Home for a few alternate firmwares for Mutable Instruments modules.
 
 [Braids Renaissance](https://burns.ca/eurorack.html)
 
-[uBurst Monsoon - Stock Firmware](https://github.com/boourns/eurorack-renaissance/releases/tag/monsoon_stock_v1.0)
+[uBurst Monsoon](https://github.com/boourns/eurorack-renaissance/releases/tag/monsoon_stock_v1.0)
 
-uBurst Monsoon - Parasites
+From the link you can download Stock firmware v1.31, Parasites v2.01, and JKammerl beat repeat v0.42 with support for Monsoon.
 
-uBurst Monsoon - JKammerl Beat Repeat
-
-Elements Live
+Elements Live (Testers needed!  Open issue if you can have an Elements and have access to a JTAG programmer so we can release this!)
 
 License
 =======
