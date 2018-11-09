@@ -407,7 +407,7 @@ inline void DigitalOscillator::renderChordWavetable(
       sample += Crossfade(wave_1, wave_2, phase_4 >> 1, wave_xfade);
     }
 
-    sample = (sample >> 2) + (sample >> 5);
+    sample = (sample >> 2);
     CLIP(sample)
     *buffer++ = sample;
     
@@ -425,7 +425,7 @@ inline void DigitalOscillator::renderChordWavetable(
       sample += Crossfade(wave_1, wave_2, phase_4 >> 1, wave_xfade);
     }
 
-    sample = (sample >> 2) + (sample >> 5);
+    sample = (sample >> 2);
     CLIP(sample)
     *buffer++ = sample;
 
