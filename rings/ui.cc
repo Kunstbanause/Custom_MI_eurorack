@@ -258,14 +258,29 @@ void Ui::OnSwitchReleased(const Event& e) {
           settings_->ToggleEasterEgg();
           AnimateEasterEggLeds();
         } else {
+          // if in normal mode, go to extra mode
+          // if in extra mode, go to easter egg
+          // if in easter egg, go to normal mode
           int32_t model = part_->model();
-          if (model >= 3) {
-            model -= 3;
+
+          if (settings_->EasterEgg()) {
+            model = model % 3;
+            settings_->ToggleEasterEgg();
+            AnimateEasterEggLeds();
+
+            part_->set_model(static_cast<ResonatorModel>(model));
+            string_synth_->set_fx(static_cast<FxType>(model));
           } else {
-            model += 3;
-          }
-          part_->set_model(static_cast<ResonatorModel>(model));
-          string_synth_->set_fx(static_cast<FxType>(model));
+            
+            if (model >= 3) {
+              settings_->ToggleEasterEgg();
+              AnimateEasterEggLeds();
+            } else {
+              model += 3;
+              part_->set_model(static_cast<ResonatorModel>(model));
+              string_synth_->set_fx(static_cast<FxType>(model));
+            }
+          } 
         }
       } else {
         int32_t model = part_->model();

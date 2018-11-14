@@ -71,6 +71,10 @@ class Settings {
   inline void ToggleEasterEgg() {
     data_.state.easter_egg = !data_.state.easter_egg;
   }
+
+  bool EasterEgg() {
+    return data_.state.easter_egg;
+  }
   
   inline State* mutable_state() {
     return &data_.state;
