@@ -131,7 +131,7 @@ void CvScaler::Read(Parameters* parameters) {
 
   float stereo = smoothed_adc_value_[ADC_STEREO_POTENTIOMETER_CV];
   CONSTRAIN(stereo, 0.0f, 1.0f);
-  parameters->feedback = stereo;
+  parameters->stereo_spread = stereo;
   previous_stereo = stereo;
   
   parameters->pitch = stmlib::Interpolate(
