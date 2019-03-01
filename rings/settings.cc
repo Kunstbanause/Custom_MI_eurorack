@@ -1,6 +1,6 @@
 // Copyright 2015 Olivier Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Olivier Gillet (pichenettes@mutable-instruments.net)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,6 +45,7 @@ void Settings::Init() {
     data_.state.polyphony = 1;
     data_.state.model = 0;
     data_.state.easter_egg = 0;
+    data_.state.color_blind = 0;
     data_.calibration_data.normalization_detection_threshold = 0.75f;
     freshly_baked_ = true;
     Save();

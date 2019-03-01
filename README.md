@@ -17,6 +17,6 @@ Code (STM32F projects): MIT license.
 
 Hardware: cc-by-sa-3.0
 
-Original firmware by: Olivier Gillet (olivier@mutable-instruments.net)
+By: E. Gillet (pichenettes@mutable-instruments.net)
 
 Contributions by Tom Burns (tom at burns.ca)
