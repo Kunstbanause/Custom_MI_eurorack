@@ -127,8 +127,8 @@ void Ui::PaintLeds() {
 
     case UI_MODE_BLEND_METER:
       leds_.set_intensity(0, cv_scaler_->previous_dry_wet * 255.0f);
-      leds_.set_intensity(1, cv_scaler_->previous_feedback * 255.0f);
-      leds_.set_intensity(2, cv_scaler_->previous_stereo * 255.0f);
+      leds_.set_intensity(1, cv_scaler_->previous_stereo * 255.0f);
+      leds_.set_intensity(2, cv_scaler_->previous_feedback * 255.0f);
       leds_.set_intensity(3, cv_scaler_->previous_reverb * 255.0f);
 
       break;
