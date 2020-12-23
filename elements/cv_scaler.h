@@ -35,6 +35,8 @@
 #include "elements/drivers/pots_adc.h"
 #include "elements/drivers/gate_input.h"
 
+#define ELEMENTS_LIVE_POT POT_RESONATOR_GEOMETRY
+
 namespace elements {
 
 struct CalibrationSettings {
@@ -87,20 +89,20 @@ class CvScaler {
       pot_lp_[POT_EXCITER_STRIKE_TIMBRE] < 0.2f;
   }
 
-  bool strike_low() {
-    return pot_lp_[POT_EXCITER_STRIKE_META] < -3.0f;
+  bool elements_live_pot_low() {
+    return pot_lp_[ELEMENTS_LIVE_POT] < 0.1f;
   }
 
-  bool strike_high() {
-    return pot_lp_[POT_EXCITER_STRIKE_META] > 3.0f;
+  bool elements_live_pot_high() {
+    return pot_lp_[ELEMENTS_LIVE_POT] > 0.9f;
   }
 
   uint8_t live_mode() {
-    if (pot_lp_[POT_EXCITER_STRIKE_META] < -1.5f) {
+    if (pot_lp_[ELEMENTS_LIVE_POT] < 0.25f) {
       return 0;
-    } else if (pot_lp_[POT_EXCITER_STRIKE_META] < 0.0f) {
+    } else if (pot_lp_[ELEMENTS_LIVE_POT] < 0.5f) {
       return 1;
-    } else if (pot_lp_[POT_EXCITER_STRIKE_META] < 1.5f) {
+    } else if (pot_lp_[ELEMENTS_LIVE_POT] < 0.75f) {
       return 2;
     } else {
       return 3;
