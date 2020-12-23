@@ -218,7 +218,7 @@ void Ui::DoEvents() {
     Event e = queue_.PullEvent();
     if (e.control_type == CONTROL_SWITCH) {
       if (e.control_id == 4) {
-        part_->set_easter_egg(e.data == 4);
+        part_->set_easter_egg(e.data == 3);
         part_->set_resonator_model(ResonatorModel(e.data % 3));
         cv_scaler_->set_boot_in_easter_egg_mode(part_->easter_egg());
         cv_scaler_->set_resonator_model(part_->resonator_model());
