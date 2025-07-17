@@ -1,6 +1,6 @@
-// Copyright 2012 Olivier Gillet.
+// Copyright 2012 Emilie Gillet.
 //
-// Author: Olivier Gillet (pichenettes@mutable-instruments.net)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,8 @@ const SettingsData kInitSettings = {
   SAMPLE_RATE_96K,
   
   0,  // AD->timbre
-  false,  // Trig source
+  0,  // Trig source   // trig_source: 0=EXT, 1=AUTO, 2=EUCL
+  3,  // Euclidean fills: 0-7
   1,  // Trig delay
   false,  // Meta modulation
   
@@ -62,7 +63,6 @@ const SettingsData kInitSettings = {
   0,  // AD->FM
   0,  // AD->COLOR
   0,  // AD->VCA
-  0,  // Invert Encoder
   0,  // Quantizer root
   
   50,
@@ -71,6 +71,7 @@ const SettingsData kInitSettings = {
   
   { 0, 0 },
   { 32768, 32768 },
+  "BENJAMIN 2025 - MUTABLE INSTRUMENTS (R)     ",
 };
 
 Storage<0x8020000, 4> storage;
@@ -137,6 +138,10 @@ const char* const zero_to_fifteen_values[] = {
     "  13",
     "  14",
     "  15"};
+
+const char* const euclidean_fills_values[] = {
+  "0", "1", "2", "3", "4", "5", "6", "7", "8"
+};
 
 const char* const algo_values[] = {
     "CSAW",
@@ -205,7 +210,8 @@ const char* const algo_values[] = {
     "TWNQ",
     "CLKN",
     "CLOU",
-    "PRTC",    // "NAME" // For your algorithm
+    "PRTC",
+    "QPSK",
 };
 
 const char* const bits_values[] = {
@@ -277,7 +283,7 @@ const char* const quantization_values[] = {
     "KTOD",
     "JOGE" };
 
-const char* const trig_source_values[] = { "EXT.", "AUTO" };
+const char* const trig_source_values[] = { "EXT.", "AUTO", "EUCL" }; // Ben: Euclidean added
 
 const char* const pitch_range_values[] = {
     "EXT.",
@@ -326,7 +332,8 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, RESOLUTION_LAST - 1, "BITS", bits_values },
   { 0, SAMPLE_RATE_LAST - 1, "RATE", rates_values },
   { 0, 15, "\x8F""TIM", zero_to_fifteen_values },
-  { 0, 1, "TSRC", trig_source_values },
+  { 0, 2, "TSRC", trig_source_values },
+  { 0, 8, "EUCL", euclidean_fills_values },
   { 0, 6, "TDLY", trig_delay_values },
   { 0, 1, "META", boolean_values },
   { 0, 3, "RANG", pitch_range_values },
@@ -345,6 +352,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 11, "ROOT", note_values },
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
+  { 0, 0, "    ", NULL },  // Placeholder for marquee
   { 0, 0, "v1.9", NULL },  // Placeholder for version string
 };
 
@@ -355,6 +363,7 @@ const Setting Settings::settings_order_[] = {
   SETTING_RESOLUTION,
   SETTING_SAMPLE_RATE,
   SETTING_TRIG_SOURCE,
+  SETTING_EUCLIDEAN_FILLS,
   SETTING_TRIG_DELAY,
   SETTING_AD_ATTACK,
   SETTING_AD_DECAY,
@@ -370,7 +379,6 @@ const Setting Settings::settings_order_[] = {
   SETTING_VCO_DRIFT,
   SETTING_SIGNATURE,
   SETTING_BRIGHTNESS,
-  SETTING_ENCODER_DIRECTION,
   SETTING_CALIBRATION,
   SETTING_CV_TESTER,
   SETTING_VERSION,

@@ -1,6 +1,6 @@
-// Copyright 2012 Olivier Gillet.
+// Copyright 2012 Emilie Gillet.
 //
-// Author: Olivier Gillet (pichenettes@mutable-instruments.net)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -79,6 +79,24 @@ bool trigger_detected_flag;
 volatile bool trigger_flag;
 uint16_t trigger_delay;
 
+// --- Euclidean Rhythm State ---
+const uint8_t kEuclideanSteps = 8;      // Number of steps in the pattern
+uint8_t euclidean_pattern[kEuclideanSteps];
+uint8_t euclidean_step = 0;
+
+// Simple Euclidean pattern generator (Bjorklund algorithm, static for now)
+void GenerateEuclideanPattern(uint8_t steps, uint8_t fills, uint8_t* pattern) {
+  for (uint8_t i = 0; i < steps; ++i) pattern[i] = 0;
+  uint8_t bucket = 0;
+  for (uint8_t i = 0; i < steps; ++i) {
+    bucket += fills;
+    if (bucket >= steps) {
+      bucket -= steps;
+      pattern[i] = 1;
+    }
+  }
+}
+
 extern "C" {
   
 void HardFault_Handler(void) { while (1); }
@@ -104,9 +122,34 @@ void TIM1_UP_IRQHandler(void) {
   }
   TIM1->SR = (uint16_t)~TIM_IT_Update;
   
+  // Always regenerate the pattern with the current fills value
+  GenerateEuclideanPattern(
+    kEuclideanSteps,
+    settings.data().euclidean_fills,
+    euclidean_pattern
+  );
+
   dac.Write(-audio_samples[playback_block][current_sample] + 32768);
 
-  bool trigger_detected = gate_input.raised();
+  bool gate = gate_input.Read();
+  static bool last_gate = false;
+  bool trigger_detected = false;
+
+  uint8_t trig_source = settings.GetValue(SETTING_TRIG_SOURCE);
+
+  if (gate && !last_gate) {
+    if (trig_source == 2) {
+      if (euclidean_pattern[euclidean_step]) {
+        trigger_detected = true;
+      }
+      euclidean_step = (euclidean_step + 1) % kEuclideanSteps;
+    } else {
+      // EXT or AUTO: original trigger logic
+      trigger_detected = true;
+    }
+  }
+  last_gate = gate;
+
   sync_samples[playback_block][current_sample] = trigger_detected;
   trigger_detected_flag = trigger_detected_flag | trigger_detected;
   
@@ -164,6 +207,10 @@ void Init() {
   ws.Init(GetUniqueId(1));
   jitter_source.Init();
   sys.StartTimers();
+
+  // Generate the initial Euclidean pattern
+  GenerateEuclideanPattern(kEuclideanSteps, settings.data().euclidean_fills, euclidean_pattern);
+  euclidean_step = 0;
 }
 
 const uint16_t bit_reduction_masks[] = {

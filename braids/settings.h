@@ -1,6 +1,6 @@
-// Copyright 2012 Olivier Gillet.
+// Copyright 2012 Emilie Gillet.
 //
-// Author: Olivier Gillet (pichenettes@mutable-instruments.net)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -112,7 +112,7 @@ enum MacroOscillatorShape {
   MACRO_OSC_SHAPE_CLOCKED_NOISE,
   MACRO_OSC_SHAPE_GRANULAR_CLOUD,
   MACRO_OSC_SHAPE_PARTICLE_NOISE,
-
+  
   // MACRO_OSC_SHAPE_YOUR_ALGO
   MACRO_OSC_SHAPE_LAST,
   MACRO_OSC_SHAPE_LAST_ACCESSIBLE_FROM_META = MACRO_OSC_SHAPE_PARTICLE_NOISE
@@ -154,6 +154,7 @@ enum Setting {
   SETTING_SAMPLE_RATE,
   SETTING_AD_TIMBRE,
   SETTING_TRIG_SOURCE,
+  SETTING_EUCLIDEAN_FILLS,
   SETTING_TRIG_DELAY,
   SETTING_META_MODULATION,
   SETTING_PITCH_RANGE,
@@ -168,13 +169,13 @@ enum Setting {
   SETTING_AD_FM,
   SETTING_AD_COLOR,
   SETTING_AD_VCA,
-  SETTING_ENCODER_DIRECTION,
   SETTING_QUANTIZER_ROOT,
   SETTING_LAST_EDITABLE_SETTING = SETTING_QUANTIZER_ROOT,
   
   // Not settings per-se, but used for menu display!
   SETTING_CALIBRATION,
   SETTING_CV_TESTER,
+  SETTING_MARQUEE,
   SETTING_VERSION,
   SETTING_LAST
 };
@@ -185,6 +186,7 @@ struct SettingsData {
   uint8_t sample_rate;
   uint8_t ad_timbre;
   uint8_t auto_trig;
+  uint8_t euclidean_fills;
   uint8_t trig_delay;
   uint8_t meta_modulation;
   uint8_t pitch_range;
@@ -199,7 +201,6 @@ struct SettingsData {
   uint8_t ad_fm;
   uint8_t ad_color;
   uint8_t ad_vca;
-  uint8_t invert_encoder;
   uint8_t quantizer_root;
   
   int32_t pitch_cv_offset;
@@ -209,6 +210,7 @@ struct SettingsData {
   int16_t parameter_cv_offset[2];
   uint16_t parameter_cv_scale[2];
   
+  char marquee_text[55];
   char magic_byte;
 };
 
@@ -276,16 +278,20 @@ class Settings {
     return data_.meta_modulation;
   }
   
-  inline bool invert_encoder() const {
-    return data_.invert_encoder;
-  }
-
   inline uint8_t trig_delay() const {
     return data_.trig_delay;
   }
   
   inline int32_t quantizer_root() const {
     return data_.quantizer_root;
+  }
+  
+  inline const char* marquee_text() const {
+    return data_.marquee_text;
+  }
+  
+  inline char* mutable_marquee_text() {
+    return data_.marquee_text;
   }
   
   inline const SettingsData& data() const { return data_; }
@@ -360,19 +366,26 @@ class Settings {
     int32_t offset = static_cast<int32_t>(data_.parameter_cv_offset[index]);
     return (scale * adc_code >> 12) + offset;
   }
+
+  inline bool paques() const {
+    return paques_;
+  }
   
   static const SettingMetadata& metadata(Setting setting) {
     return metadata_[setting];
   }
 
-  static const Setting setting_at_index(int16_t index) {
+  static const Setting& setting_at_index(int16_t index) {
     return settings_order_[index];
   }
   
  private:
+  void CheckPaques();
+
   SettingsData data_;
   
   uint16_t version_token_;
+  bool paques_;
   
   static const SettingMetadata metadata_[SETTING_LAST];
   static const Setting settings_order_[SETTING_LAST];
