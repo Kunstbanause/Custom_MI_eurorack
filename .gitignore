@@ -45,3 +45,10 @@ build
 *_BETA.sch
 *_beta.brd
 *_BETA.brd
+
+#Ben
+amap.exe
+*.code-workspace
+*.Identifier
+*.7z
+braids/_buildCommands.md
