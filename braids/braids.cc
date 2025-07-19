@@ -33,7 +33,7 @@
 
 #include "braids/drivers/adc.h"
 #include "braids/drivers/dac.h"
-#include "braids/drivers/debug_pin.h"
+//#include "braids/drivers/debug_pin.h"
 #include "braids/drivers/gate_input.h"
 #include "braids/drivers/internal_adc.h"
 #include "braids/drivers/system.h"
@@ -41,7 +41,7 @@
 #include "braids/macro_oscillator.h"
 #include "braids/quantizer.h"
 #include "braids/signature_waveshaper.h"
-#include "braids/vco_jitter_source.h"
+//#include "braids/vco_jitter_source.h"
 #include "braids/ui.h"
 
 #include "braids/quantizer_scales.h"
@@ -59,13 +59,13 @@ MacroOscillator osc;
 Envelope envelope;
 Adc adc;
 Dac dac;
-DebugPin debug_pin;
+//DebugPin debug_pin;
 GateInput gate_input;
 InternalAdc internal_adc;
 Quantizer quantizer;
 SignatureWaveshaper ws;
 System sys;
-VcoJitterSource jitter_source;
+//VcoJitterSource jitter_source;
 Ui ui;
 
 uint8_t current_scale = 0xff;
@@ -83,8 +83,9 @@ uint16_t trigger_delay;
 const uint8_t kEuclideanSteps = 8;      // Number of steps in the pattern
 uint8_t euclidean_pattern[kEuclideanSteps];
 uint8_t euclidean_step = 0;
+static uint8_t last_fills = 0xFF;
 
-// Simple Euclidean pattern generator (Bjorklund algorithm, static for now)
+// Simple Euclidean pattern generator (Bjorklund algorithm)
 void GenerateEuclideanPattern(uint8_t steps, uint8_t fills, uint8_t* pattern) {
   for (uint8_t i = 0; i < steps; ++i) pattern[i] = 0;
   uint8_t bucket = 0;
@@ -121,13 +122,6 @@ void TIM1_UP_IRQHandler(void) {
     return;
   }
   TIM1->SR = (uint16_t)~TIM_IT_Update;
-  
-  // Always regenerate the pattern with the current fills value
-  GenerateEuclideanPattern(
-    kEuclideanSteps,
-    settings.data().euclidean_fills,
-    euclidean_pattern
-  );
 
   dac.Write(-audio_samples[playback_block][current_sample] + 32768);
 
@@ -135,17 +129,20 @@ void TIM1_UP_IRQHandler(void) {
   static bool last_gate = false;
   bool trigger_detected = false;
 
-  uint8_t trig_source = settings.GetValue(SETTING_TRIG_SOURCE);
-
   if (gate && !last_gate) {
-    if (trig_source == 2) {
-      if (euclidean_pattern[euclidean_step]) {
-        trigger_detected = true;
+    if (settings.GetValue(SETTING_TRIG_SOURCE) == 2) {
+      uint8_t current_fills = settings.data().euclidean_fills;
+      if (current_fills != last_fills) {
+        GenerateEuclideanPattern( kEuclideanSteps, settings.data().euclidean_fills, euclidean_pattern);
+        last_fills = current_fills;
       }
+    if (euclidean_pattern[euclidean_step]) {
+        trigger_detected = true;
+    }
       euclidean_step = (euclidean_step + 1) % kEuclideanSteps;
     } else {
       // EXT or AUTO: original trigger logic
-      trigger_detected = true;
+      trigger_detected = true; // trigger_detected = gate_input.raised();
     }
   }
   last_gate = gate;
@@ -187,9 +184,9 @@ void Init() {
   system_clock.Init();
   adc.Init(false);
   gate_input.Init();
-#ifdef PROFILE_RENDER
-  debug_pin.Init();
-#endif
+// #ifdef PROFILE_RENDER
+//   debug_pin.Init();
+// #endif
   dac.Init();
   osc.Init();
   quantizer.Init();
@@ -205,7 +202,7 @@ void Init() {
   
   envelope.Init();
   ws.Init(GetUniqueId(1));
-  jitter_source.Init();
+  //jitter_source.Init();
   sys.StartTimers();
 
   // Generate the initial Euclidean pattern
@@ -227,11 +224,11 @@ const uint16_t decimation_factors[] = { 24, 12, 6, 4, 3, 2, 1 };
 void RenderBlock() {
   static int16_t previous_pitch = 0;
   static int16_t previous_shape = 0;
-  static uint16_t gain_lp;
+  static uint16_t gain_lp = 65535; // <-- Initialize to max gain
 
-#ifdef PROFILE_RENDER
-  debug_pin.High();
-#endif
+// #ifdef PROFILE_RENDER
+//   debug_pin.High();
+// #endif
   envelope.Update(
       settings.GetValue(SETTING_AD_ATTACK) * 8,
       settings.GetValue(SETTING_AD_DECAY) * 8);
@@ -260,15 +257,18 @@ void RenderBlock() {
   }
   
   // Set timbre and color: CV + internal modulation.
-  uint16_t parameters[2];
-  for (uint16_t i = 0; i < 2; ++i) {
-    int32_t value = settings.adc_to_parameter(i, adc.channel(i));
-    Setting ad_mod_setting = i == 0 ? SETTING_AD_TIMBRE : SETTING_AD_COLOR;
-    value += ad_value * settings.GetValue(ad_mod_setting) >> 5;
-    CONSTRAIN(value, 0, 32767);
-    parameters[i] = value;
-  }
-  osc.set_parameters(parameters[0], parameters[1]);
+  //uint16_t parameters[2];
+  //for (uint16_t i = 0; i < 2; ++i) {
+    //int32_t value = settings.adc_to_parameter(i, adc.channel(i));
+    //Setting ad_mod_setting = i == 0 ? SETTING_AD_TIMBRE : SETTING_AD_COLOR;
+    //value += ad_value * settings.GetValue(ad_mod_setting) >> 5;
+    //CONSTRAIN(value, 0, 32767);
+    //parameters[i] = value;
+  //}
+  //osc.set_parameters(parameters[0], parameters[1]);
+  osc.set_parameters(
+      settings.adc_to_parameter(0, adc.channel(0)),
+      settings.adc_to_parameter(1, adc.channel(1)));
   
   // Apply hysteresis to ADC reading to prevent a single bit error to move
   // the quantized pitch up and down the quantization boundary.
@@ -286,7 +286,7 @@ void RenderBlock() {
   }
   previous_pitch = pitch;
   
-  pitch += jitter_source.Render(settings.vco_drift());
+  //pitch += jitter_source.Render(settings.vco_drift());
   pitch += internal_adc.value() >> 8;
   pitch += ad_value * settings.GetValue(SETTING_AD_FM) >> 7;
   
@@ -311,8 +311,8 @@ void RenderBlock() {
   int16_t* render_buffer = audio_samples[render_block];
   
   if (settings.GetValue(SETTING_AD_VCA) != 0
-    || settings.GetValue(SETTING_AD_TIMBRE) != 0
-    || settings.GetValue(SETTING_AD_COLOR) != 0
+    //|| settings.GetValue(SETTING_AD_TIMBRE) != 0
+    //|| settings.GetValue(SETTING_AD_COLOR) != 0
     || settings.GetValue(SETTING_AD_FM) != 0) {
     memset(sync_buffer, 0, kBlockSize);
   }
@@ -335,9 +335,9 @@ void RenderBlock() {
     render_buffer[i] = Mix(sample, warped, signature);
   }
   render_block = (render_block + 1) % kNumBlocks;
-#ifdef PROFILE_RENDER
-  debug_pin.Low();
-#endif
+// #ifdef PROFILE_RENDER
+//   debug_pin.Low();
+// #endif
 }
 
 int main(void) {

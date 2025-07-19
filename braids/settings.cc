@@ -44,9 +44,9 @@ const SettingsData kInitSettings = {
   RESOLUTION_16_BIT,
   SAMPLE_RATE_96K,
   
-  0,  // AD->timbre
+  //0,  // AD->timbre
   0,  // Trig source   // trig_source: 0=EXT, 1=AUTO, 2=EUCL
-  3,  // Euclidean fills: 0-7
+  4,  // Euclidean fills: 0-8
   1,  // Trig delay
   false,  // Meta modulation
   
@@ -54,14 +54,14 @@ const SettingsData kInitSettings = {
   2,
   0,  // Quantizer is off
   false,
-  false,
+  //false, // Ben: Drift?
   false,
   
   2,  // Brightness
   0,  // AD attack
   5,  // AD decay
   0,  // AD->FM
-  0,  // AD->COLOR
+  //0,  // AD->COLOR
   0,  // AD->VCA
   0,  // Quantizer root
   
@@ -71,7 +71,7 @@ const SettingsData kInitSettings = {
   
   { 0, 0 },
   { 32768, 32768 },
-  "BENJAMIN 2025 - MUTABLE INSTRUMENTS (R)     ",
+  //"BENJAMIN 2025 - MUTABLE INSTRUMENTS (R)     ",
 };
 
 Storage<0x8020000, 4> storage;
@@ -140,7 +140,7 @@ const char* const zero_to_fifteen_values[] = {
     "  15"};
 
 const char* const euclidean_fills_values[] = {
-  "0", "1", "2", "3", "4", "5", "6", "7", "8"
+  "0/8", "1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"
 };
 
 const char* const algo_values[] = {
@@ -331,28 +331,28 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, MACRO_OSC_SHAPE_LAST - 1, "WAVE", algo_values },
   { 0, RESOLUTION_LAST - 1, "BITS", bits_values },
   { 0, SAMPLE_RATE_LAST - 1, "RATE", rates_values },
-  { 0, 15, "\x8F""TIM", zero_to_fifteen_values },
+  //{ 0, 15, "\x8F""TIM", zero_to_fifteen_values },
   { 0, 2, "TSRC", trig_source_values },
-  { 0, 8, "EUCL", euclidean_fills_values },
+  { 0, 8, "EUCL", euclidean_fills_values }, // 0-7 for 1 to 8 values
   { 0, 6, "TDLY", trig_delay_values },
   { 0, 1, "META", boolean_values },
   { 0, 3, "RANG", pitch_range_values },
   { 0, 4, "OCTV", octave_values },
   { 0, 48, "QNTZ", quantization_values },
   { 0, 1, "FLAT", boolean_values },
-  { 0, 4, "DRFT", intensity_values },
+  //{ 0, 4, "DRFT", intensity_values },
   { 0, 4, "SIGN", intensity_values },
   { 0, 2, "BRIG", brightness_values },
   { 0, 15, "\x8F""ATT", zero_to_fifteen_values },
   { 0, 15, "\x8F""DEC", zero_to_fifteen_values },
   { 0, 15, "\x8F""FM ", zero_to_fifteen_values },
-  { 0, 15, "\x8F""COL", zero_to_fifteen_values },
+  //{ 0, 15, "\x8F""COL", zero_to_fifteen_values },
   { 0, 1, "\x8F""VCA", boolean_values },
-  { 0, 1, "NVRT", boolean_values },
+  //{ 0, 1, "NVRT", boolean_values },
   { 0, 11, "ROOT", note_values },
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
-  { 0, 0, "    ", NULL },  // Placeholder for marquee
+  //{ 0, 0, "    ", NULL },  // Placeholder for marquee
   { 0, 0, "v1.9", NULL },  // Placeholder for version string
 };
 
@@ -368,15 +368,15 @@ const Setting Settings::settings_order_[] = {
   SETTING_AD_ATTACK,
   SETTING_AD_DECAY,
   SETTING_AD_FM,
-  SETTING_AD_TIMBRE,
-  SETTING_AD_COLOR,
+  //SETTING_AD_TIMBRE,
+  //SETTING_AD_COLOR,
   SETTING_AD_VCA,
   SETTING_PITCH_RANGE,
   SETTING_PITCH_OCTAVE,
   SETTING_QUANTIZER_SCALE,
   SETTING_QUANTIZER_ROOT,
   SETTING_VCO_FLATTEN,
-  SETTING_VCO_DRIFT,
+  //SETTING_VCO_DRIFT,
   SETTING_SIGNATURE,
   SETTING_BRIGHTNESS,
   SETTING_CALIBRATION,

@@ -152,7 +152,7 @@ enum Setting {
   SETTING_OSCILLATOR_SHAPE,
   SETTING_RESOLUTION,
   SETTING_SAMPLE_RATE,
-  SETTING_AD_TIMBRE,
+  //SETTING_AD_TIMBRE,
   SETTING_TRIG_SOURCE,
   SETTING_EUCLIDEAN_FILLS,
   SETTING_TRIG_DELAY,
@@ -161,13 +161,13 @@ enum Setting {
   SETTING_PITCH_OCTAVE,
   SETTING_QUANTIZER_SCALE,
   SETTING_VCO_FLATTEN,
-  SETTING_VCO_DRIFT,
+  //SETTING_VCO_DRIFT,
   SETTING_SIGNATURE,
   SETTING_BRIGHTNESS,
   SETTING_AD_ATTACK,
   SETTING_AD_DECAY,
   SETTING_AD_FM,
-  SETTING_AD_COLOR,
+  //SETTING_AD_COLOR,
   SETTING_AD_VCA,
   SETTING_QUANTIZER_ROOT,
   SETTING_LAST_EDITABLE_SETTING = SETTING_QUANTIZER_ROOT,
@@ -175,7 +175,7 @@ enum Setting {
   // Not settings per-se, but used for menu display!
   SETTING_CALIBRATION,
   SETTING_CV_TESTER,
-  SETTING_MARQUEE,
+  //SETTING_MARQUEE,
   SETTING_VERSION,
   SETTING_LAST
 };
@@ -184,7 +184,7 @@ struct SettingsData {
   uint8_t shape;
   uint8_t resolution;
   uint8_t sample_rate;
-  uint8_t ad_timbre;
+  //uint8_t ad_timbre;
   uint8_t auto_trig;
   uint8_t euclidean_fills;
   uint8_t trig_delay;
@@ -193,13 +193,13 @@ struct SettingsData {
   uint8_t pitch_octave;
   uint8_t quantizer_scale;
   uint8_t vco_flatten;
-  uint8_t vco_drift;
+  // uint8_t vco_drift;
   uint8_t signature;
   uint8_t brightness;
   uint8_t ad_attack;
   uint8_t ad_decay;
   uint8_t ad_fm;
-  uint8_t ad_color;
+  //uint8_t ad_color;
   uint8_t ad_vca;
   uint8_t quantizer_root;
   
@@ -210,7 +210,7 @@ struct SettingsData {
   int16_t parameter_cv_offset[2];
   uint16_t parameter_cv_scale[2];
   
-  char marquee_text[55];
+  //char marquee_text[55];
   char magic_byte;
 };
 
@@ -266,9 +266,9 @@ class Settings {
     return data_.vco_flatten;
   }
 
-  inline uint8_t vco_drift() const {
-    return data_.vco_drift;
-  }
+  // inline uint8_t vco_drift() const {
+  //   return data_.vco_drift;
+  // }
 
   inline uint8_t signature() const {
     return data_.signature;
@@ -286,13 +286,13 @@ class Settings {
     return data_.quantizer_root;
   }
   
-  inline const char* marquee_text() const {
-    return data_.marquee_text;
-  }
+  // inline const char* marquee_text() const {
+  //   return data_.marquee_text;
+  // }
   
-  inline char* mutable_marquee_text() {
-    return data_.marquee_text;
-  }
+  // inline char* mutable_marquee_text() {
+  //   return data_.marquee_text;
+  // }
   
   inline const SettingsData& data() const { return data_; }
   inline SettingsData* mutable_data() { return &data_; }
