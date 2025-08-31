@@ -1,0 +1,4 @@
+FROM python:2.7-slim
+RUN pip install --prefix=/tmp/python2-packages numpy
+ENV PYTHONPATH=/tmp/python2-packages/lib/python2.7/site-packages:$PYTHONPATH
+WORKDIR /mi

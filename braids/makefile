@@ -42,7 +42,8 @@ TARGET         = braids
 PACKAGES       = braids braids/drivers stmlib/utils stmlib/system braids/vocalist
 RESOURCES      = braids/resources
 
-TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
+#TOOLCHAIN_PATH ?= /usr/local/arm-4.8.3/
+TOOLCHAIN_PATH = 
 
 SKIP_MINIMIZATION = build/braids/harmonics.o build/braids/stack.o build/braids/quantizer.o
 
@@ -54,6 +55,6 @@ $(SKIP_MINIMIZATION): ARCHFLAGS = -mcpu=cortex-m3 -mthumb -fno-unroll-loops -O3
 
 # Rule for building the firmware update file
 wav:  $(TARGET_BIN)
-	PYTHONPATH=. python stm_audio_bootloader/qpsk/encoder.py \
+	PYTHONPATH=/tmp/python2-packages/lib/python2.7/site-packages:. python stm_audio_bootloader/qpsk/encoder.py \
 		-s 48000 -b 12000 -c 6000 -p 256 \
 		$(TARGET_BIN)
